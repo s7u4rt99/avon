@@ -200,7 +200,7 @@ async def generate_widget_session(user_id: int):
         language="en"
     ).get_parsed_response()
 
-    return {widget_response}
+    return {"widget_response": widget_response}
 
 @app.post("/consumeTerraWebhook")
 async def consume_terra_webhook(request: Request):
