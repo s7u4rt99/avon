@@ -6,9 +6,10 @@ import {
   ThemeProvider,
 } from "@react-navigation/native";
 import { useFonts } from "expo-font";
-import { SplashScreen, Stack } from "expo-router";
+import { Link, SplashScreen, Stack } from "expo-router";
 import { useEffect } from "react";
-import { useColorScheme } from "react-native";
+import { Pressable, useColorScheme } from "react-native";
+import Colors from "../constants/Colors";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -53,13 +54,32 @@ function RootLayoutNav() {
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <Stack>
-        {/* <Stack.Screen name="main" options={{ headerShown: false }} />
+        {/* <Stack.Screen name="main" options={{ headerShown: false }} />*/}
+        <Stack.Screen
+          name="index"
+          options={{
+            headerTitle: 'avon chat',
+            headerShadowVisible: false,
+            headerRight: () => (
+              <Link href="/modal" asChild>
+                <Pressable>
+                  {({ pressed }) => (
+                    <FontAwesome
+                      name="gear"
+                      size={30}
+                      color={colorScheme === "dark" ? "white" : "black"}
+                      style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
+                    />
+                  )}
+                </Pressable>
+              </Link>
+            ),
+          }}
+        />
         <Stack.Screen
           name="modal"
           options={{ headerShown: false, presentation: "modal" }}
-        /> */}
-        <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: "modal" }} />
+        />
       </Stack>
     </ThemeProvider>
   );

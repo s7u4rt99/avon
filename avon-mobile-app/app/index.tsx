@@ -15,7 +15,7 @@ import {
   InputToolbarProps,
 } from "react-native-gifted-chat";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import * as Haptics from 'expo-haptics';
+import * as Haptics from "expo-haptics";
 
 interface Message extends IMessage {
   hasBeenTypedOut: boolean;
@@ -58,11 +58,16 @@ export default function MainScreen() {
   }, []);
 
   return (
-    <SafeAreaView style={styles.boundary}>
+    <SafeAreaView
+      style={[
+        styles.boundary,
+        { backgroundColor: colorScheme === "dark" ? "#000" : "#fff" },
+      ]}
+    >
       <View style={styles.container}>
-        <View style={styles.titleContainer}>
+        {/* <View style={styles.titleContainer}>
           <Text style={styles.title}>avon chat</Text>
-        </View>
+        </View> */}
         <View style={styles.chatContainer}>
           <GiftedChat
             messages={messages}
@@ -128,23 +133,27 @@ export default function MainScreen() {
                       />
                     );
                   }}
-                  containerStyle={styles.textBoxContainer}
+                  containerStyle={[
+                    styles.textBoxContainer,
+                    {
+                      backgroundColor: colorScheme === "dark" ? "#000" : "#fff",
+                    },
+                  ]}
                   renderSend={(props) => {
                     return (
                       <Pressable
                         onPress={() => {
-                          props.onSend && props.onSend({ text: props?.text?.trim() }, true);
-                          Haptics.notificationAsync(
-                            Haptics.NotificationFeedbackType.Success,
+                          props.onSend &&
+                            props.onSend({ text: props?.text?.trim() }, true);
+                          Haptics.impactAsync(
+                            Haptics.ImpactFeedbackStyle.Light
                           );
                         }}
                       >
                         <FontAwesome
                           name="chevron-circle-up"
                           size={30}
-                          color={
-                            colorScheme === "dark" ? "#fff" : "#2e78b7"
-                          }
+                          color={colorScheme === "dark" ? "#fff" : "#2e78b7"}
                           style={{ marginRight: "5%", marginBottom: "20%" }}
                         />
                       </Pressable>
@@ -183,12 +192,10 @@ const styles = StyleSheet.create({
     width: "80%",
   },
   chatContainer: {
-    flex: 7 / 8,
+    flex: 8 / 8,
     marginBottom: "5%",
   },
-  textBoxContainer: {
-    backgroundColor: "#000",
-  },
+  textBoxContainer: {},
   textBox: {
     color: "#fff",
     marginTop: "5%",
