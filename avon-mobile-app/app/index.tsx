@@ -16,6 +16,7 @@ import {
 } from "react-native-gifted-chat";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import * as Haptics from "expo-haptics";
+import Colors from "../constants/Colors";
 
 interface Message extends IMessage {
   hasBeenTypedOut: boolean;
@@ -85,6 +86,14 @@ export default function MainScreen() {
               return (
                 <Bubble
                   {...props}
+                  wrapperStyle={{
+                    left: {
+                      backgroundColor: colorScheme === "dark" ? "#fff" : "#000",
+                    },
+                    right: {
+                      backgroundColor: colorScheme === "dark" ? "#262626" : "#adadad",
+                    },
+                  }}
                   containerStyle={{
                     left: {
                       marginBottom: "5%",
@@ -108,10 +117,12 @@ export default function MainScreen() {
                     left: {
                       paddingHorizontal: "5%",
                       paddingTop: "2%",
+                      color: colorScheme === "dark" ? "#000" : "#fff",
                     },
                     right: {
                       paddingHorizontal: "5%",
                       paddingTop: "2%",
+                      color: colorScheme === "dark" ? "#fff" : "#000",
                     },
                   }}
                 />

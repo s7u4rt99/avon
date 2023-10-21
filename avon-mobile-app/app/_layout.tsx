@@ -9,7 +9,6 @@ import { useFonts } from "expo-font";
 import { Link, SplashScreen, Stack } from "expo-router";
 import { useEffect } from "react";
 import { Pressable, useColorScheme } from "react-native";
-import Colors from "../constants/Colors";
 import { MonoText } from "../components/StyledText";
 
 export {
@@ -55,7 +54,6 @@ function RootLayoutNav() {
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <Stack>
-        {/* <Stack.Screen name="main" options={{ headerShown: false }} />*/}
         <Stack.Screen
           name="index"
           options={{
