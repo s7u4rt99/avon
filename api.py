@@ -5,7 +5,6 @@ import os
 import json
 import google_auth_oauthlib.flow
 # from constants import BASE_URL, GOOGLE_SCOPES
-# from database import add_user
 import logging
 from typing import List, TypedDict, Union
 from dotenv import load_dotenv
