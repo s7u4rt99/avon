@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, Response
+from fastapi import FastAPI, Request, Response, UploadFile
 from fastapi.logger import logger
 from starlette.middleware.sessions import SessionMiddleware
 import os
@@ -10,6 +10,7 @@ import logging
 from typing import List, TypedDict, Union
 from dotenv import load_dotenv
 from supabase.client import create_client
+import whisper
 
 # Ensure that all requests include an 'example.com' or
 # '*.example.com' host header, and strictly enforce https-only access.
@@ -36,6 +37,8 @@ supabase = create_client(API_URL, API_KEY)
 app = FastAPI()
 app.add_middleware(SessionMiddleware,
                    secret_key=os.environ.get("GOOGLE_CLIENT_SECRET"))
+
+
 
 
 @app.on_event("startup")
@@ -263,3 +266,10 @@ async def google_oauth_callback(request: Request, response: Response):
 
     # Send the Response object
     return response
+
+@app.post("/whisper")
+async def process_audio(audio_file: UploadFile):
+    model = whisper.load_model("base")
+    contents = await audio_file.read()
+    result = model.transcribe(contents.decode())
+    return {"transcription": result}
