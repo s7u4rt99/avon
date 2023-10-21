@@ -115,7 +115,7 @@ async def mark_task_as_added(task_id: int):
     return db.mark_task_as_added(task_id)
 
 
-@app.patch("/plan_tasks/{user_id}")
+@app.patch("/planTasks/{user_id}")
 def plan_tasks(user_id: int):
     return ai.plan_tasks(user_id)
 
