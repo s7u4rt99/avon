@@ -110,16 +110,16 @@ async def edit_user(
 
     data = {}
 
-    if username is not "":
+    if username != "":
         data["username"] = username
 
-    if name is not "":
+    if name != "":
         data["name"] = name
 
-    if email is not "":
+    if email != "":
         data["email"] = email
 
-    if google_refresh_token is not "":
+    if google_refresh_token != "":
         data["google_refresh_token"] = google_refresh_token
 
     return (
@@ -178,10 +178,10 @@ async def add_task(user_id: int, name: str, description: str = "", recurring: bo
 async def edit_task(task_id: int, name: str, description: str = ""):
     data = {}
 
-    if name is not "":
+    if name != "":
         data["name"] = name
 
-    if description is not "":
+    if description != "":
         data["description"] = description
 
     return (
