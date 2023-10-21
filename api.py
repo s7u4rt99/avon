@@ -207,7 +207,7 @@ async def handle_widget_response_success(user_id: str, reference_id: str, resour
     return db.edit_user(reference_id, terra_user_id=user_id)
 
 @app.get("/widgetResponseFailure")
-async def handle_widget_response_failure(user_id:str, resource:str, reference_id:str, lan:str, reason:str):
+async def handle_widget_response_failure(user_id: str, resource: str, reference_id: str, lan: str, reason: str):
     # TODO: Handle failure
     return db.edit_user(reference_id, terra_user_id=user_id)
 

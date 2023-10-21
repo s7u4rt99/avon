@@ -33,10 +33,10 @@ def get_user(user_id: int):
 
 
 def add_user(
-    username: str,
-    name: str,
-    email: str,
-    google_refresh_token: str,
+    username: str = "",
+    name: str = "",
+    email: str= "",
+    google_refresh_token: str= "",
     terra_user_id: str = " "
 ):
     return (
@@ -56,11 +56,11 @@ def add_user(
 
 def edit_user(
     user_id: int,
-    username: str,
-    name: str,
-    email: str,
-    google_refresh_token: str,
-    terra_user_id: str = " "
+    username: str = "",
+    name: str = "",
+    email: str= "",
+    google_refresh_token: str= "",
+    terra_user_id: str = ""
 ):
     data = {}
 
