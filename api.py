@@ -247,13 +247,14 @@ async def google_oauth_callback(request: Request, response: Response):
         "scopes": credentials.scopes,
     }
 
-    add_user(
-        telegram_user_id=int(telegram_user_id) if telegram_user_id else 0,
-        username=username if username else "bad_entry",
-        name=username if username else "bad_entry",
-        email="",
-        google_refresh_token=flow.credentials.refresh_token,
-    )
+    data = {
+        "username": username or "bad_entry",
+        "name": "",
+        "email": "",
+        "google_refresh_token": flow.credentials.refresh_token,
+    }
+    supabase.table("Users").insert(data).execute()
+    
 
     # Create a Response object with the 307 redirect status code
     response = Response(
