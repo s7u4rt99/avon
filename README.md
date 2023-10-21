@@ -1,55 +1,38 @@
-# avon
+![BIZY gif](https://github.com/s7u4rt99/avon/assets/95898480/0f81c671-eff6-477e-816b-4175f08f5bf4)
 
-## Table of Contents
+# BIZY: Your Productivity Copilot 🚀✨
 
-- [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Setup](#setup)
-- [Usage](#usage)
+## 🎉 Introduction
 
-## Getting Started
+Meet BIZY, your go-to productivity copilot 🤖 designed to streamline your day and help you achieve more 🎯. With BIZY, you can effortlessly manage your events 📅, tasks 📝, and habits 🔄 all in one place. Powered by AI 🧠, BIZY adapts to your needs and helps you make the most out of every day 🌈.
 
-These instructions will help you get the project up and running on your local machine.
+## 🛠 Features
 
-### Prerequisites
+### 📝 Task Management 
 
-- Python (version specified in `requirements.txt`)
-- Virtual environment tool (e.g., `venv` or `virtualenv`)
-- Git (for cloning the repository)
+- **⏳ East of Input**: Just text whatever tasks or reminders or events naturally. No unnecessary clicks!
+- **⏳ Auto Categorize**: BIZY will detect and categorize your input into either an event or task or habit. 
+- **⏰ Deadline Tracking**: Never miss a deadline again ⚠️. BIZY prioritizes tasks based on urgency 🕒.
+- **⏳ Duration Estimates**: Input how long a task will take, and BIZY will find the best time slot for it ⌛.
 
-### Setup
+### 🔄 Habit Tracking 
 
-- Create and activate a virtual environment:
+- **🔁 Frequency Setting**: Want to meditate 🧘 daily or hit the gym 🏋️‍♀️ thrice a week? Set your frequency, and BIZY will make sure you stick to it 🎯.
+- **🎛 Adaptive Scheduling**: Missed your habit? Fret not! BIZY will find another gap in your schedule to help you stay consistent 🌈.
 
-  - Using venv (recommended):
+### 📆 Event Scheduling 
 
-    ```bash
-    python -m venv venv
-    source venv/bin/activate # On Linux/macOS
-    venv\Scripts\activate # On Windows
-    ```
+- **🌍 Smart Scheduling**: BIZY will schedule all events accurately with no conflicts while ensuring your deadlines are met and habits are stuck to.
+- **🔀 Auto Adjustments**: When things don't by plan, BIZY will adjust your schedule as many times as needed.
 
-  - Using virtualenv:
+### 📆 Analysis
 
-    ```bash
-    virtualenv venv
-    source venv/bin/activate # On Linux/macOS
-    venv\Scripts\activate # On Windows
-    ```
+- **🌍 Reporting**: Since BIZY is constantly adjusting your schedule to reflect how you actually spend your time, it can provide you with accurate daily/weekly reports
+- **🔀 Health App Integrations**: BIZY is integrated with Terra API, thus being able to report on your health data weekly as well. 
 
-- Install the project dependencies:
+## 🤖 How It Works
 
-  ```bash
-  pip3 install -r requirements.txt
-  ```
-
-## Usage
-
-Explain how to run or use your project here.
-
-If you installed more dependencies in python, run the code below to update `requirements.txt`.
-
-```bash
-pip3 freeze > requirements.txt
-```
+1. **📥 Input**: Text your events 📅, tasks 📝, and habits 🔄. BIZY will ask for any missing details ❓.
+2. **✅ Confirm**: Before making any changes to your existing schedule 🗓, BIZY will seek your confirmation 🤔.
+3. **🔄 Adapt**: Got a new task 📝 in the middle of the day? No worries 😎. BIZY will adapt your schedule accordingly 🔄.
 
