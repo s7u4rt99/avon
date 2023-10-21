@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Request, Response
 from fastapi.logger import logger
+import requests
 from starlette.middleware.sessions import SessionMiddleware
 import os
 import google_auth_oauthlib.flow
@@ -222,10 +223,15 @@ async def list_terra_users():
 async def consume_terra_webhook(request: Request):
     body = await request.body()
     body_dict = json.loads(body.decode())
-    verified = terra.check_terra_signature(body.decode(), request.headers['terra-signature'])
-    parsed_api_response = terra.list_users().get_parsed_response()
-    print(parsed_api_response)
+    return {"user": body_dict.get("user", {}).get("user_id"), "type": body_dict["type"], "data": body_dict["data"]}
 
-    # print(body_dict)
-    print(verified)
-    return {"user": body_dict.get("user", {}).get("user_id"), "type": body_dict["type"], "verified": verified}
+@app.post("/send_notification/")
+async def send_notification(token: str, message: str):
+    url = "https://exp.host/--/api/v2/push/send"
+    data = {
+        "to": token,
+        "title": "Your Title",
+        "body": message
+    }
+    response = requests.post(url, json=data)
+    return {"status": "Notification sent", "response": response.json()}
