@@ -195,15 +195,15 @@ async def generate_widget_session(user_id: int):
     widget_response = terra.generate_widget_session(
         reference_id=user_id,
         providers=["GARMIN"],
-        auth_success_redirect_url="https://avon-seven.vercel.app/widgetResponseSuccess",
-        auth_failure_redirect_url="https://avon-seven.vercel.app/widgetResponseFailure",
+        auth_success_redirect_url="https://avon-seven.vercel.app/widgetResponseSuccess/",
+        auth_failure_redirect_url="https://avon-seven.vercel.app/widgetResponseFailure/",
         language="en"
     ).get_parsed_response()
 
     return {"widget_response": widget_response}
 
 @app.post("/widgetResponseSuccess/")
-async def handle_widget_response_success(user_id: str, resource: str, reference_id: str, lan: str):
+async def handle_widget_response_success(user_id: str, reference_id: str, resource: str):
     return db.edit_user(reference_id, terra_user_id=user_id)
 
 @app.post("/widgetResponseFailure/")
