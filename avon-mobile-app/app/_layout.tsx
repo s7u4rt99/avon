@@ -10,6 +10,7 @@ import { Link, SplashScreen, Stack } from "expo-router";
 import { useEffect } from "react";
 import { Pressable, useColorScheme } from "react-native";
 import { MonoText } from "../components/StyledText";
+import LandingScreen from "./landing";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -50,38 +51,40 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
+  const isLoggedIn = false; // Will be a hook.
 
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+        {isLoggedIn ? (
       <Stack>
-        <Stack.Screen
-          name="index"
-          options={{
-            headerTitle(props) {
-              return <MonoText style={{ fontSize: 20 }}>avon chat</MonoText>;
-            },
-            headerShadowVisible: false,
-            headerRight: () => (
-              <Link href="/modal" asChild>
-                <Pressable>
-                  {({ pressed }) => (
-                    <FontAwesome
-                      name="gear"
-                      size={30}
-                      color={colorScheme === "dark" ? "white" : "black"}
-                      style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
-                    />
-                  )}
-                </Pressable>
-              </Link>
-            ),
-          }}
-        />
-        <Stack.Screen
-          name="modal"
-          options={{ headerShown: false, presentation: "modal" }}
-        />
-      </Stack>
+            <Stack.Screen
+              name="main"
+              options={{
+                headerTitle(props) {
+                  return (
+                    <MonoText style={{ fontSize: 20 }}>avon chat</MonoText>
+                  );
+                },
+                headerShadowVisible: false,
+              }}
+            />
+          </Stack>
+        ) : (
+          <Stack>
+            <Stack.Screen
+              name="landing"
+              options={{
+                headerShown: false,
+              }}
+            />
+            <Stack.Screen
+              name="login"
+              options={{
+                headerShown: false,
+              }}
+            />
+          </Stack>
+        )}
     </ThemeProvider>
   );
 }
