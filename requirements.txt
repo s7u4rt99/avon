@@ -82,3 +82,4 @@ uvloop==0.18.0
 watchfiles==0.21.0
 websockets==10.4
 yarl==1.9.2
+terra-python
