@@ -37,6 +37,7 @@ def add_user(
     name: str,
     email: str,
     google_refresh_token: str,
+    terra_user_id: str = " "
 ):
     return (
         supabase.table("Users")
@@ -46,6 +47,7 @@ def add_user(
                 "name": name,
                 "email": email,
                 "google_refresh_token": google_refresh_token,
+                "terra_user_id": terra_user_id
             }
         )
         .execute()
@@ -58,11 +60,10 @@ def edit_user(
     name: str,
     email: str,
     google_refresh_token: str,
+    terra_user_id: str = " "
 ):
-
     data = {}
 
-    print("hello")
     if username != "":
         data["username"] = username
 
@@ -71,6 +72,9 @@ def edit_user(
 
     if email != "":
         data["email"] = email
+    
+    if terra_user_id != "":
+        data["terra_user_id"] = terra_user_id
 
     if google_refresh_token != "":
         data["google_refresh_token"] = google_refresh_token
