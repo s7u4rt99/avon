@@ -204,12 +204,14 @@ async def generate_widget_session(user_id: int):
 
 @app.get("/widgetResponseSuccess")
 async def handle_widget_response_success(user_id: str, reference_id: str, resource: str):
-    return db.edit_user(reference_id, terra_user_id=user_id)
+    db.edit_user(reference_id, terra_user_id=user_id)
+    return {"response": "close the browser window"}
 
 @app.get("/widgetResponseFailure")
 async def handle_widget_response_failure(user_id: str, resource: str, reference_id: str, lan: str, reason: str):
     # TODO: Handle failure
-    return db.edit_user(reference_id, terra_user_id=user_id)
+    db.edit_user(reference_id, terra_user_id=user_id)
+    return {"response": "close the browser window"}
 
 @app.get("/listTerraUsers")
 async def list_terra_users():
