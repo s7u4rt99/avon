@@ -190,8 +190,8 @@ if not TERRA_API_KEY or not TERRA_DEV_ID:
 
 terra = Terra(api_key=TERRA_API_KEY, dev_id=TERRA_DEV_ID, secret=TERRA_SIGNING_SECRET or "")
 
-@app.post("/generateWidgetSession")
-async def generate_widget_session(user_id: str):
+@app.post("/generateWidgetSession/{user_id}")
+async def generate_widget_session(user_id: int):
     widget_response = terra.generate_widget_session(
         reference_id=user_id,
         providers=["GARMIN"],
