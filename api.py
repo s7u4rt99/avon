@@ -202,11 +202,11 @@ async def generate_widget_session(user_id: int):
 
     return {"widget_response": widget_response}
 
-@app.post("/widgetResponseSuccess")
+@app.get("/widgetResponseSuccess")
 async def handle_widget_response_success(user_id: str, reference_id: str, resource: str):
     return db.edit_user(reference_id, terra_user_id=user_id)
 
-@app.post("/widgetResponseFailure")
+@app.get("/widgetResponseFailure")
 async def handle_widget_response_failure(user_id:str, resource:str, reference_id:str, lan:str, reason:str):
     # TODO: Handle failure
     return db.edit_user(reference_id, terra_user_id=user_id)
