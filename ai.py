@@ -167,5 +167,3 @@ def plan_tasks(user_id: int):
 
     return tasks
 
-
-# plan_tasks(8)

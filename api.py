@@ -185,8 +185,8 @@ TERRA_API_KEY = os.getenv("TERRA_API_KEY")
 TERRA_DEV_ID = os.getenv("TERRA_DEV_ID")
 TERRA_SIGNING_SECRET = os.getenv("TERRA_SIGNING_SECRET")
 
-if not TERRA_API_KEY or not TERRA_DEV_ID or not TERRA_SIGNING_SECRET:
-    raise Exception("API_URL or API_KEY not found in .env file")
+if not TERRA_API_KEY or not TERRA_DEV_ID:
+    raise Exception("TERRA_API_KEY or TERRA_DEV_ID or TERRA_SIGNING_SECRET not found in .env file")
 
 terra = Terra(api_key=TERRA_API_KEY, dev_id=TERRA_DEV_ID, secret=TERRA_SIGNING_SECRET)
 
