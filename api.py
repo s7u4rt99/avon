@@ -190,11 +190,26 @@ if not TERRA_API_KEY or not TERRA_DEV_ID:
 
 terra = Terra(api_key=TERRA_API_KEY, dev_id=TERRA_DEV_ID, secret=TERRA_SIGNING_SECRET or "")
 
+@app.post("/generateWidgetSession")
+async def generate_widget_session(user_id: str):
+    widget_response = terra.generate_widget_session(
+        reference_id=user_id,
+        providers=["GARMIN"],
+        auth_success_redirect_url="https://success.url",
+        auth_failure_redirect_url="https://failure.url",
+        language="en"
+    ).get_parsed_response()
+
+    return {widget_response}
+
 @app.post("/consumeTerraWebhook")
 async def consume_terra_webhook(request: Request):
     body = await request.body()
     body_dict = json.loads(body.decode())
     verified = terra.check_terra_signature(body.decode(), request.headers['terra-signature'])
-    print(body_dict)
+    parsed_api_response = terra.list_users().get_parsed_response()
+    print(parsed_api_response)
+
+    # print(body_dict)
     print(verified)
     return {"user": body_dict.get("user", {}).get("user_id"), "type": body_dict["type"], "verified": verified}
