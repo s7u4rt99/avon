@@ -10,6 +10,7 @@ import { Link, SplashScreen, Stack } from "expo-router";
 import { useEffect } from "react";
 import { Pressable, useColorScheme } from "react-native";
 import Colors from "../constants/Colors";
+import { MonoText } from "../components/StyledText";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -58,7 +59,9 @@ function RootLayoutNav() {
         <Stack.Screen
           name="index"
           options={{
-            headerTitle: 'avon chat',
+            headerTitle(props) {
+              return <MonoText style={{ fontSize: 20 }}>avon chat</MonoText>;
+            },
             headerShadowVisible: false,
             headerRight: () => (
               <Link href="/modal" asChild>

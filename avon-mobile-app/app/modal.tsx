@@ -4,11 +4,12 @@ import React from 'react';
 
 import SettingsModal from '../components/SettingsModal';
 import { Text, View } from '../components/Themed';
+import { MonoText } from '../components/StyledText';
 
 export default function ModalScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Settings</Text>
+      <MonoText style={styles.title}>Settings</MonoText>
       <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
       <SettingsModal />
 
