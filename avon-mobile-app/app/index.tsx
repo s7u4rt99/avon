@@ -81,6 +81,10 @@ export default function MainScreen() {
             listViewProps={{
               keyboardDismissMode: "on-drag",
             }}
+            timeTextStyle={{
+              left: { color: colorScheme === "dark" ? "#000" : "#fff" },
+              right: { color: colorScheme === "dark" ? "#fff" : "#000" },
+            }}
             renderAvatar={null}
             renderBubble={(props) => {
               return (
@@ -91,7 +95,8 @@ export default function MainScreen() {
                       backgroundColor: colorScheme === "dark" ? "#fff" : "#000",
                     },
                     right: {
-                      backgroundColor: colorScheme === "dark" ? "#262626" : "#adadad",
+                      backgroundColor:
+                        colorScheme === "dark" ? "#262626" : "#adadad",
                     },
                   }}
                   containerStyle={{
@@ -138,9 +143,13 @@ export default function MainScreen() {
                     return (
                       <Composer
                         {...props}
+                        textInputAutoFocus={true}
+                        textInputProps={{
+                          spellCheck: true,
+                        }}
                         placeholder="what's up?"
                         placeholderTextColor="gray"
-                        textInputStyle={styles.textBox}
+                        textInputStyle={[styles.textBox, { color: colorScheme === "dark" ? "#fff" : "#000" }]}
                       />
                     );
                   }}
@@ -208,7 +217,6 @@ const styles = StyleSheet.create({
   },
   textBoxContainer: {},
   textBox: {
-    color: "#fff",
     marginTop: "5%",
     marginLeft: "5%",
   },
