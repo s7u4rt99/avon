@@ -1,18 +1,18 @@
-from fastapi import FastAPI, Request, Response
-from fastapi.logger import logger
-from starlette.middleware.sessions import SessionMiddleware
+import requests
 import os
 import google_auth_oauthlib.flow
-from constants import BASE_URL, GOOGLE_SCOPES
 import logging
 import db
 import ai
-
+import json
+from fastapi import FastAPI, Request, Response
+from fastapi.logger import logger
+from starlette.middleware.sessions import SessionMiddleware
+from constants import BASE_URL, GOOGLE_SCOPES
 from typing import List, TypedDict, Union
 from dotenv import load_dotenv
 from supabase.client import create_client
 from terra.base_client import Terra
-import json
 
 # Ensure that all requests include an 'example.com' or
 # '*.example.com' host header, and strictly enforce https-only access.
@@ -226,16 +226,23 @@ async def list_terra_users():
 async def consume_terra_webhook(request: Request):
     body = await request.body()
     body_dict = json.loads(body.decode())
-    verified = terra.check_terra_signature(body.decode(), request.headers['terra-signature'])
-    parsed_api_response = terra.list_users().get_parsed_response()
-    print(parsed_api_response)
-
-    # print(body_dict)
-    print(verified)
-    return {"user": body_dict.get("user", {}).get("user_id"), "type": body_dict["type"], "verified": verified}
+    return {"user": body_dict.get("user", {}).get("user_id"), "type": body_dict["type"], "data": body_dict["data"]}
 
 
 # for testing purposes only
 @app.post("/message/{user_id}")
 def message(user_id: int, message: str):
     return db.message(user_id, message)
+
+
+@app.post("/send_notification/")
+async def send_notification(token: str, message: str):
+    url = "https://exp.host/--/api/v2/push/send"
+    data = {
+        "to": token,
+        "title": "Your Title",
+        "body": message
+    }
+    response = requests.post(url, json=data)
+    return {"status": "Notification sent", "response": response.json()}
+
