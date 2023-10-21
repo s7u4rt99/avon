@@ -15,6 +15,7 @@ import {
   InputToolbarProps,
 } from "react-native-gifted-chat";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
+import * as Haptics from 'expo-haptics';
 
 interface Message extends IMessage {
   hasBeenTypedOut: boolean;
@@ -133,6 +134,9 @@ export default function MainScreen() {
                       <Pressable
                         onPress={() => {
                           props.onSend && props.onSend({ text: props?.text?.trim() }, true);
+                          Haptics.notificationAsync(
+                            Haptics.NotificationFeedbackType.Success,
+                          );
                         }}
                       >
                         <FontAwesome
