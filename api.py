@@ -8,6 +8,11 @@ import logging
 import db
 import ai
 
+from typing import List, TypedDict, Union
+from dotenv import load_dotenv
+from supabase.client import create_client
+from terra.base_client import Terra
+import json
 
 # Ensure that all requests include an 'example.com' or
 # '*.example.com' host header, and strictly enforce https-only access.
@@ -175,3 +180,19 @@ async def google_oauth_callback(request: Request, response: Response):
 
     # Send the Response object
     return response
+
+TERRA_API_KEY = os.getenv("TERRA_API_KEY")
+TERRA_DEV_ID = os.getenv("TERRA_DEV_ID")
+TERRA_SIGNING_SECRET = os.getenv("TERRA_SIGNING_SECRET")
+
+if not TERRA_API_KEY or not TERRA_DEV_ID or not TERRA_SIGNING_SECRET:
+    raise Exception("API_URL or API_KEY not found in .env file")
+
+terra = Terra(api_key=TERRA_API_KEY, dev_id=TERRA_DEV_ID, secret=TERRA_SIGNING_SECRET)
+
+@app.post("/consumeTerraWebhook")
+async def consume_terra_webhook(request: Request):
+    body = await request.body()
+    body_dict = json.loads(body.decode())
+    verified = terra.check_terra_signature(body.decode(), request.headers['terra-signature'])
+    return {"user": body_dict.get("user", {}).get("user_id"), "type": body_dict["type"], "verified": verified}
