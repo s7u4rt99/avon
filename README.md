@@ -4,7 +4,7 @@
 
 ## 🎉 Introduction
 
-Meet BIZY, your go-to productivity copilot 🤖 designed to streamline your day and help you achieve more 🎯. With BIZY, you can effortlessly manage your events 📅, tasks 📝, and habits 🔄 all in one place. Powered by AI 🧠, BIZY adapts to your needs and helps you make the most out of every day 🌈.
+Meet BIZY, your go-to productivity copilot 🤖 designed to streamline your day and help you achieve more. With BIZY, you can effortlessly manage your *events*, *tasks*, and *habits* all in one place. Powered by AI 🧠, BIZY adapts to your needs and helps you make the most out of every day 🌈.
 
 ## 🛠 Features
 
