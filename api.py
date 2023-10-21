@@ -190,7 +190,7 @@ if not TERRA_API_KEY or not TERRA_DEV_ID:
 
 terra = Terra(api_key=TERRA_API_KEY, dev_id=TERRA_DEV_ID, secret=TERRA_SIGNING_SECRET or "")
 
-@app.post("/generateWidgetSession/{user_id}")
+@app.post("/generateWidgetSession/")
 async def generate_widget_session(user_id: int):
     widget_response = terra.generate_widget_session(
         reference_id=user_id,
@@ -202,11 +202,11 @@ async def generate_widget_session(user_id: int):
 
     return {"widget_response": widget_response}
 
-@app.post("/widgetResponseSuccess")
+@app.post("/widgetResponseSuccess/")
 async def handle_widget_response_success(user_id: str, resource: str, reference_id: str, lan: str):
     return db.edit_user(reference_id, terra_user_id=user_id)
 
-@app.post("/widgetResponseFailure")
+@app.post("/widgetResponseFailure/")
 async def handle_widget_response_failure(user_id:str, resource:str, reference_id:str, lan:str, reason:str):
     # TODO: Handle failure
     return db.edit_user(reference_id, terra_user_id=user_id)
