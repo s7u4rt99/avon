@@ -105,7 +105,7 @@ def get_tasks_from_user(user_id: int):
     return (
         supabase.table("Tasks")
         .select("*")
-        .eq("id", user_id)
+        .eq("user_id", user_id)
         .eq("added", False)
         .execute()
         .data
@@ -154,7 +154,7 @@ def mark_task_as_added(task_id):
 
 
 def fetch_tasks_formatted(user_id: int):
-    tasks_json = get_tasks(user_id)
+    tasks_json = get_tasks_from_user(user_id)
     tasks = ""
     for task in tasks_json:
         tasks += str(task["id"]) + ": " + task["name"] + "\n"

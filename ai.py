@@ -59,7 +59,7 @@ def plan_tasks(user_id: int):
     user = get_user(user_id)
     refresh_token = user.get("google_refresh_token", "")
     # Get events from tomorrow 12am to tomorrow 11:59pm
-    today = datetime.utcnow()
+    today = datetime.utcnow() + timedelta(days=1)
     today_midnight = datetime(today.year, today.month, today.day, 0, 0)
     events = get_calendar_events(
         refresh_token=refresh_token,
@@ -84,6 +84,7 @@ def plan_tasks(user_id: int):
         for event in events
     ]
 
+    print("events", events)
     formatted_events_str = dumps(formatted_events)
     print("formatted_events_str", formatted_events_str)
 
@@ -94,7 +95,7 @@ def plan_tasks(user_id: int):
     print(tasks)
     if not tasks:
         return None
-    human_template = "This is my schedule for tomorrow (which cannot be changed): \n{formatted_events_str}\nThese are extra tasks I want to do tomorrow, with the lowest id as the most important:\n{tasks}\nHelp me add to my schedule with as many of these tasks as possible. Give a reasonable estimate and you do not have to add all if there is no time. Do NOT create new tasks. Do not return the events or tasks in my existing schedule. Return it in parsable JSON format that can be immediately parsed. The return value should contain id, task name and time slot and nothing else, no other sentences ONLY."
+    human_template = "This is my schedule for tomorrow (which cannot be changed): \n{formatted_events_str}\nThese are extra tasks I want to do tomorrow, with the lowest id as the most important:\n{tasks}\nHelp me add to my schedule with as many of these tasks as possible. Give a reasonable estimate and you do not have to add all if there is no time. Do NOT create new tasks. Do not return the events or tasks in my existing schedule. Return it in parsable JSON format that can be immediately parsed. The return json should have keys id, task_name and time_slot and nothing else, no other sentences ONLY."
     # It returns in this format:
     # {
     #     "tasks": [
@@ -163,3 +164,8 @@ def plan_tasks(user_id: int):
         for task in tasks:
             mark_task_as_added(task["id"])
             print(f"Marked added {task['id']}")
+
+    return tasks
+
+
+# plan_tasks(8)
