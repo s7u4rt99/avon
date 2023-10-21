@@ -4,7 +4,7 @@ import {
   StyleSheet,
   useColorScheme,
 } from "react-native";
-import { Text, View } from "../components/Themed";
+import { Text, View } from "../../components/Themed";
 import React, { useState, useCallback, useEffect } from "react";
 import {
   Composer,
@@ -16,7 +16,7 @@ import {
 } from "react-native-gifted-chat";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import * as Haptics from "expo-haptics";
-import Colors from "../constants/Colors";
+import Colors from "../../constants/Colors";
 
 interface Message extends IMessage {
   hasBeenTypedOut: boolean;

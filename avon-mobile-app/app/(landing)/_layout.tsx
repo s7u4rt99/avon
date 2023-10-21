@@ -6,12 +6,9 @@ import {
   ThemeProvider,
 } from "@react-navigation/native";
 import { useFonts } from "expo-font";
-import { SplashScreen } from "expo-router";
+import { Link, SplashScreen, Stack } from "expo-router";
 import { useEffect } from "react";
-import { useColorScheme } from "react-native";
-import LandingLayout from "./(landing)/_layout";
-import MainLayout from "./(main)/_layout";
-import LandingScreen from "./landing";
+import { Pressable, useColorScheme } from "react-native";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -20,15 +17,15 @@ export {
 
 export const unstable_settings = {
   // Ensure that reloading on `/modal` keeps a back button present.
-  initialRouteName: "(landing)",
+  initialRouteName: "(tabs)",
 };
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
-export default function RootLayout() {
+export default function LandingLayout() {
   const [loaded, error] = useFonts({
-    SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
+    SpaceMono: require("../../assets/fonts/SpaceMono-Regular.ttf"),
     ...FontAwesome.font,
   });
 
@@ -56,11 +53,20 @@ function RootLayoutNav() {
 
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      {isLoggedIn ? (
-        <MainLayout />
-      ) : (
-        <LandingLayout />
-      )}
+      <Stack initialRouteName="index">
+        <Stack.Screen
+          name="index"
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="login"
+          options={{
+            headerShown: false,
+          }}
+        />
+      </Stack>
     </ThemeProvider>
   );
 }
