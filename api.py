@@ -303,7 +303,8 @@ def message(user_id: int, message: str):
 class TokenData(BaseModel):
     userId: str
     token: str
-    
+
+
 @app.post("/registerPushToken")
 async def register_push_token(request: TokenData):
     user_id = str(request.userId)
@@ -313,6 +314,7 @@ async def register_push_token(request: TokenData):
         return {"status": "success"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
 
 @app.post("/send_notification")
 async def send_notification(token: str, message: str):
@@ -324,3 +326,13 @@ async def send_notification(token: str, message: str):
     }
     response = requests.post(url, json=data)
     return {"status": "Notification sent", "response": response.json()}
+
+
+@app.patch("/reply/{todo_id}")
+async def reply(todo_id: int, message: str):
+    return db.reply_flow(todo_id, message)
+
+
+@app.post("/reply")
+async def add_new_task(message: str):
+    return db.add_new_task_flow(message)
