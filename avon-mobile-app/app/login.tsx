@@ -1,11 +1,19 @@
 import { StatusBar } from "expo-status-bar";
-import { ImageBackground, Platform, StyleSheet } from "react-native";
+import {
+  ImageBackground,
+  NativeSyntheticEvent,
+  NativeTouchEvent,
+  Platform,
+  StyleSheet,
+  TextInput,
+  useColorScheme,
+} from "react-native";
 import React, { useEffect, useState } from "react";
 import { View } from "../components/Themed";
 import { MonoText } from "../components/StyledText";
 import StyledButton from "../components/StyledButton";
 import { useRouter } from "expo-router";
-import { ExternalLink } from "../components/ExternalLink";
+import * as WebBrowser from "expo-web-browser";
 import TypeWriter from "react-native-typewriter";
 import axios from "axios";
 import { BASE_URL } from "../constants/config";
@@ -13,27 +21,46 @@ const landing = require("../assets/images/landing.png");
 
 export default function LoginScreen() {
   const router = useRouter();
+  const colorScheme = useColorScheme();
+  const [email, setEmail] = useState<string>("");
   const [showAll, setShowAll] = useState(false);
-  const [googleOauthUrl, setGoogleOauthUrl] = useState<string>("");
+  const [isGoogleConnected, setIsGoogleConnected] = useState<boolean>(false);
 
-  useEffect(() => {
-    async function init() {
-      try {
-        alert(BASE_URL)
-        const authUrlResponse = await axios.get<string>(
-          BASE_URL + "/get_google_oauth_url"
-        );
-        if (authUrlResponse.status === 200 && authUrlResponse.data) {
-          setGoogleOauthUrl(authUrlResponse.data);
-        }
-      } catch (e) {
-        if (e instanceof Error) {
-          console.error(e.name, e.message);
+  async function connectToGoogle(e: NativeSyntheticEvent<NativeTouchEvent>) {
+    // Prevent the default behavior of linking to the default browser on native.
+    e.preventDefault();
+    try {
+      const authUrlResponse = await axios.get<string>(
+        BASE_URL +
+          `/get_google_oauth_url${email ? `?email=${email.toLowerCase()}` : ""}`
+      );
+      if (authUrlResponse.status === 200 && authUrlResponse.data) {
+        if (Platform.OS !== "web") {
+          // Open the link in an in-app browser.
+          WebBrowser.openBrowserAsync(authUrlResponse.data as string);
         }
       }
+    } catch (e) {
+      if (e instanceof Error) {
+        console.error(e.name, e.message);
+      }
     }
-    init();
-  }, []);
+  }
+
+  const checkUserConnectedGoogle = async () => {
+    try {
+      const emailResponse = await axios.get<string>(
+        BASE_URL + "/users/email/" + email.toLowerCase()
+      );
+      if (emailResponse.status === 200 && emailResponse.data) {
+        setIsGoogleConnected(true);
+      }
+    } catch (e) {
+      if (e instanceof Error) {
+        console.warn(e.name, e.message);
+      }
+    }
+  };
   return (
     <View style={styles.container}>
       <ImageBackground resizeMode="cover" source={landing} style={styles.bg}>
@@ -51,7 +78,9 @@ export default function LoginScreen() {
                 typing={1}
                 maxDelay={10}
                 onTypingEnd={() => {
-                  setShowAll(true);
+                  setTimeout(() => {
+                    setShowAll(true);
+                  }, 200);
                 }}
               >
                 We'll need you to connect the following to get you started
@@ -60,15 +89,33 @@ export default function LoginScreen() {
           </View>
           {showAll && (
             <View style={{ minWidth: "90%", gap: 4 }}>
-              <ExternalLink
-                href={googleOauthUrl}
-                asChild
+              <TextInput
+                style={[
+                  {
+                    backgroundColor: colorScheme === "dark" ? "#000" : "#fff",
+                    color: colorScheme === "dark" ? "#fff" : "#000",
+                  },
+                  styles.input,
+                ]}
+                onChangeText={(text) => setEmail(text)}
+                keyboardType="email-address"
+                placeholder="Enter your email"
+              />
+              <StyledButton
                 style={styles.actionButton}
+                disabled={!email}
+                onPress={connectToGoogle}
               >
-                <StyledButton style={styles.actionButton}>
-                  <MonoText>Connect Google</MonoText>
-                </StyledButton>
-              </ExternalLink>
+                <MonoText>
+                  {isGoogleConnected ? "Connected to Google" : "Connect Google"}
+                </MonoText>
+              </StyledButton>
+              <StyledButton
+                style={styles.actionButton}
+                onPress={checkUserConnectedGoogle}
+              >
+                <MonoText>Refresh</MonoText>
+              </StyledButton>
               <StyledButton
                 onPress={() => router.canGoBack() && router.back()}
                 style={styles.actionButton}
@@ -105,6 +152,18 @@ const styles = StyleSheet.create({
   subtitleContainer: {
     maxWidth: "80%",
     marginBottom: "5%",
+  },
+  input: {
+    alignSelf: "center",
+    alignItems: "center",
+    justifyContent: "center",
+    width: "100%",
+    height: 40,
+    borderColor: "gray",
+    borderWidth: 1,
+    borderRadius: 5,
+    padding: 10,
+    marginBottom: 10,
   },
   actionButton: {
     width: "50%",

@@ -12,6 +12,7 @@ import pytz
 from telegram.ext import ContextTypes
 from logger_config import configure_logger
 from constants import BASE_URL, GOOGLE_SCOPES
+
 # from utils import send_on_error_message
 
 logger = configure_logger()
@@ -178,8 +179,7 @@ def get_calendar_events(
         )
         .execute()
     )
-    events: Union[List[GoogleCalendarEvent],
-                  None] = events_result.get("items", [])
+    events: Union[List[GoogleCalendarEvent], None] = events_result.get("items", [])
 
     if events is None or type(events) is not list:
         print("No upcoming events found.")
@@ -234,9 +234,9 @@ def add_calendar_event(
 
 
 async def find_next_available_time_slot(
-        refresh_token: str,
-        events: Sequence[GoogleCalendarEvent],
-        event_duration_minutes: int,
+    refresh_token: str,
+    events: Sequence[GoogleCalendarEvent],
+    event_duration_minutes: int,
 ):
     CLIENT_ID = getenv("GOOGLE_CLIENT_ID")
     CLIENT_SECRET = getenv("GOOGLE_CLIENT_SECRET")
@@ -252,22 +252,37 @@ async def find_next_available_time_slot(
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
-    service = build('calendar', 'v3', credentials=creds)
+    service = build("calendar", "v3", credentials=creds)
 
     # Get the current date and time
     current_datetime = datetime.now(tz=pytz.timezone("America/New_York"))
     current_date = current_datetime.date()
-    end_of_day = datetime.combine(current_date, datetime.time(datetime(
-        year=current_date.year, month=current_date.month, day=current_date.day, hour=23, minute=59, second=59)))
+    end_of_day = datetime.combine(
+        current_date,
+        datetime.time(
+            datetime(
+                year=current_date.year,
+                month=current_date.month,
+                day=current_date.day,
+                hour=23,
+                minute=59,
+                second=59,
+            )
+        ),
+    )
 
     # List events on the current day
-    events_result = service.events().list(
-        calendarId="primary",
-        timeMin=current_datetime.isoformat(),
-        timeMax=end_of_day.isoformat(),
-        singleEvents=True,
-    ).execute()
-    events = events_result.get('items', [])
+    events_result = (
+        service.events()
+        .list(
+            calendarId="primary",
+            timeMin=current_datetime.isoformat(),
+            timeMax=end_of_day.isoformat(),
+            singleEvents=True,
+        )
+        .execute()
+    )
+    events = events_result.get("items", [])
 
     # Loop from current time, in intervals of 15 mins, check scheduling conflict, if conflict continue, else return this time slot and don't allow event to be past 11:59pm
     time_slot = current_datetime
@@ -275,21 +290,30 @@ async def find_next_available_time_slot(
     while time_slot < end_of_day:
         # Check if there is a scheduling conflict
         def is_scheduling_conflict(
-                start_time: datetime,
-                end_time: datetime,
-                events: Sequence[GoogleCalendarEvent],
+            start_time: datetime,
+            end_time: datetime,
+            events: Sequence[GoogleCalendarEvent],
         ):
             for event in events:
-                if event.get("start") and event.get("end") and event.get("start").get("dateTime") and event.get("end").get("dateTime"):
+                if (
+                    event.get("start")
+                    and event.get("end")
+                    and event.get("start").get("dateTime")
+                    and event.get("end").get("dateTime")
+                ):
                     event_start_time = datetime.fromisoformat(
-                        event.get("start").get("dateTime"))  # type: ignore
+                        event.get("start").get("dateTime")
+                    )  # type: ignore
                     event_end_time = datetime.fromisoformat(
-                        event.get("end").get("dateTime"))  # type: ignore
+                        event.get("end").get("dateTime")
+                    )  # type: ignore
                     if start_time < event_end_time or end_time > event_start_time:
                         return True
             return False
 
-        if not is_scheduling_conflict(time_slot, time_slot + timedelta(minutes=event_duration_minutes), events):
+        if not is_scheduling_conflict(
+            time_slot, time_slot + timedelta(minutes=event_duration_minutes), events
+        ):
             return time_slot
         else:
             time_slot += timedelta(minutes=15)
@@ -298,13 +322,12 @@ async def find_next_available_time_slot(
 
 async def refresh_daily_jobs_with_google_cal(
     context: ContextTypes.DEFAULT_TYPE,
-    get_next_event_job: Callable[[datetime, str, Optional[datetime]], Callable[
-        ..., Coroutine[Any, Any, None]
-    ]],  # curried function that takes in event time and desc and returns job function
+    get_next_event_job: Callable[
+        [datetime, str, Optional[datetime]], Callable[..., Coroutine[Any, Any, None]]
+    ],  # curried function that takes in event time and desc and returns job function
 ) -> List[GoogleCalendarEvent]:
     if context.chat_data is None:
-        logger.error(
-            "context.chat_data is None for refresh_daily_jobs_with_google_cal")
+        logger.error("context.chat_data is None for refresh_daily_jobs_with_google_cal")
         # await send_on_error_message(context)
         return []
     user_id = context.chat_data["user_id"]
@@ -313,9 +336,7 @@ async def refresh_daily_jobs_with_google_cal(
     refresh_token = user.get("google_refresh_token", "")
 
     # Get events from tomorrow 12am to tomorrow 11:59pm
-    today = datetime.now(
-        tz=pytz.timezone("America/New_York")
-    )
+    today = datetime.now(tz=pytz.timezone("America/New_York"))
     today_midnight = datetime(today.year, today.month, today.day, 23, 30)
     events = get_calendar_events(
         refresh_token=refresh_token,
@@ -331,21 +352,22 @@ async def refresh_daily_jobs_with_google_cal(
         if not event.get("start").get("dateTime", False):
             # Skip all-day events
             continue
-        given_datetime = datetime.fromisoformat(
-            event.get("start").get("dateTime", "")
-        )
+        given_datetime = datetime.fromisoformat(event.get("start").get("dateTime", ""))
         if not given_datetime:
             continue
         # Calculate the time difference in seconds
         time_diff = (current_datetime - given_datetime).total_seconds()
 
         has_end_datetime = event.get("endTimeUnspecified", False)
-        end_datetime = datetime.fromisoformat(
-            event.get("end").get("dateTime", "")
-        ) if has_end_datetime else None
+        end_datetime = (
+            datetime.fromisoformat(event.get("end").get("dateTime", ""))
+            if has_end_datetime
+            else None
+        )
 
         job_func = get_next_event_job(
-            given_datetime, event.get("summary"), end_datetime)
+            given_datetime, event.get("summary"), end_datetime
+        )
 
         await add_once_job(
             job=job_func, due=time_diff, chat_id=chat_id, context=context
