@@ -8,6 +8,5 @@ langchain==0.0.308
 openai==0.28.1
 pytz==2023.3
 python-dotenv==1.0.0
-python-telegram-bot==20.4
 supabase==1.2.0
 terra-python==0.0.11

@@ -9,7 +9,6 @@ from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 import json
 import pytz
-from telegram.ext import ContextTypes
 from logger_config import configure_logger
 from constants import BASE_URL, GOOGLE_SCOPES
 # from utils import send_on_error_message
@@ -72,7 +71,7 @@ class GoogleCalendarGetEventsResponse(TypedDict):
     items: List[GoogleCalendarEvent]
 
 
-async def get_login_google(telegram_user_id: int, username: str):
+async def get_login_google(email: str, username: str):
     flow = Flow.from_client_config(
         client_config={
             "web": {
@@ -105,7 +104,7 @@ async def get_login_google(telegram_user_id: int, username: str):
         # Enable incremental authorization. Recommended as a best practice.
         include_granted_scopes="true",
         state=json.dumps(
-            {"telegram_user_id": str(telegram_user_id), "username": username}
+            {"email": email, "username": username}
         ),
     )
 
@@ -296,58 +295,58 @@ async def find_next_available_time_slot(
     return None
 
 
-async def refresh_daily_jobs_with_google_cal(
-    context: ContextTypes.DEFAULT_TYPE,
-    get_next_event_job: Callable[[datetime, str, Optional[datetime]], Callable[
-        ..., Coroutine[Any, Any, None]
-    ]],  # curried function that takes in event time and desc and returns job function
-) -> List[GoogleCalendarEvent]:
-    if context.chat_data is None:
-        logger.error(
-            "context.chat_data is None for refresh_daily_jobs_with_google_cal")
-        # await send_on_error_message(context)
-        return []
-    user_id = context.chat_data["user_id"]
-    chat_id = context.chat_data["chat_id"]
-    user = get_user(user_id)
-    refresh_token = user.get("google_refresh_token", "")
+# async def refresh_daily_jobs_with_google_cal(
+#     context: ContextTypes.DEFAULT_TYPE,
+#     get_next_event_job: Callable[[datetime, str, Optional[datetime]], Callable[
+#         ..., Coroutine[Any, Any, None]
+#     ]],  # curried function that takes in event time and desc and returns job function
+# ) -> List[GoogleCalendarEvent]:
+#     if context.chat_data is None:
+#         logger.error(
+#             "context.chat_data is None for refresh_daily_jobs_with_google_cal")
+#         # await send_on_error_message(context)
+#         return []
+#     user_id = context.chat_data["user_id"]
+#     chat_id = context.chat_data["chat_id"]
+#     user = get_user(user_id)
+#     refresh_token = user.get("google_refresh_token", "")
 
-    # Get events from tomorrow 12am to tomorrow 11:59pm
-    today = datetime.now(
-        tz=pytz.timezone("America/New_York")
-    )
-    today_midnight = datetime(today.year, today.month, today.day, 23, 30)
-    events = get_calendar_events(
-        refresh_token=refresh_token,
-        timeMin=today_midnight.isoformat() + "Z",
-        timeMax=(today_midnight + timedelta(days=1)).isoformat() + "Z",
-        k=20,
-    )
-    logger.info("refreshed cal", events)
-    for event in events:
-        # Create a datetime object for the current datetime
-        current_datetime = datetime.now(tz=pytz.timezone("America/New_York"))
-        # Create a datetime object for the given datetime
-        if not event.get("start").get("dateTime", False):
-            # Skip all-day events
-            continue
-        given_datetime = datetime.fromisoformat(
-            event.get("start").get("dateTime", "")
-        )
-        if not given_datetime:
-            continue
-        # Calculate the time difference in seconds
-        time_diff = (current_datetime - given_datetime).total_seconds()
+#     # Get events from tomorrow 12am to tomorrow 11:59pm
+#     today = datetime.now(
+#         tz=pytz.timezone("America/New_York")
+#     )
+#     today_midnight = datetime(today.year, today.month, today.day, 23, 30)
+#     events = get_calendar_events(
+#         refresh_token=refresh_token,
+#         timeMin=today_midnight.isoformat() + "Z",
+#         timeMax=(today_midnight + timedelta(days=1)).isoformat() + "Z",
+#         k=20,
+#     )
+#     logger.info("refreshed cal", events)
+#     for event in events:
+#         # Create a datetime object for the current datetime
+#         current_datetime = datetime.now(tz=pytz.timezone("America/New_York"))
+#         # Create a datetime object for the given datetime
+#         if not event.get("start").get("dateTime", False):
+#             # Skip all-day events
+#             continue
+#         given_datetime = datetime.fromisoformat(
+#             event.get("start").get("dateTime", "")
+#         )
+#         if not given_datetime:
+#             continue
+#         # Calculate the time difference in seconds
+#         time_diff = (current_datetime - given_datetime).total_seconds()
 
-        has_end_datetime = event.get("endTimeUnspecified", False)
-        end_datetime = datetime.fromisoformat(
-            event.get("end").get("dateTime", "")
-        ) if has_end_datetime else None
+#         has_end_datetime = event.get("endTimeUnspecified", False)
+#         end_datetime = datetime.fromisoformat(
+#             event.get("end").get("dateTime", "")
+#         ) if has_end_datetime else None
 
-        job_func = get_next_event_job(
-            given_datetime, event.get("summary"), end_datetime)
+#         job_func = get_next_event_job(
+#             given_datetime, event.get("summary"), end_datetime)
 
-        await add_once_job(
-            job=job_func, due=time_diff, chat_id=chat_id, context=context
-        )
-    return events
+#         await add_once_job(
+#             job=job_func, due=time_diff, chat_id=chat_id, context=context
+#         )
+#     return events
