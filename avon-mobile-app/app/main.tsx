@@ -36,24 +36,23 @@ export default function MainScreen() {
         const email = emailMaybe || "";
         setEmail(email);
         messageUnsubscribe = await getChatMessages(email, (snapshot) => {
-          const firebaseMessages: Array<FirebaseChatMessage> = snapshot.val();
-          if (!firebaseMessages || !Array.isArray(firebaseMessages)) {
-            console.log("firebaseMessages is not an array");
+          const firebaseSnapshot: { [k: string]: FirebaseChatMessage } =
+            snapshot.val();
+          if (!firebaseSnapshot) {
             return;
           }
-          setMessages(
-            firebaseMessages
-              .filter((m) => !!m && !!m.text && !!m.sentAt && !!m.id && !!m.isSentByBot)
-              .map((m) => ({
-                _id: m.id,
-                text: m.text,
-                createdAt: new Date(m.sentAt),
-                user: {
-                  _id: m.isSentByBot ? MessageSender.Bot : MessageSender.Sender,
-                },
-                hasBeenTypedOut: true,
-              }))
-          );
+          const firebaseMessages = Object.entries(firebaseSnapshot)
+            .filter(([k, v]) => !!v && !!k)
+            .map(([id, m]) => ({
+              _id: id,
+              text: m.text,
+              createdAt: new Date(m.sentAt),
+              user: {
+                _id: m.isSentByBot ? MessageSender.Bot : MessageSender.Sender,
+              },
+              hasBeenTypedOut: true,
+            }));
+          setMessages(firebaseMessages);
         });
       } catch (e) {
         alert(e);
