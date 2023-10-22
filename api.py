@@ -230,3 +230,9 @@ async def consume_terra_webhook(request: Request):
     # print(body_dict)
     print(verified)
     return {"user": body_dict.get("user", {}).get("user_id"), "type": body_dict["type"], "verified": verified}
+
+
+# for testing purposes only
+@app.post("/message")
+def message(message: str):
+    return db.message(message)

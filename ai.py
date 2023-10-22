@@ -113,17 +113,17 @@ def plan_tasks(user_id: int):
     #         {
     #         "id": 1,
     #         "task_name": "run",
-    #         "time_slot": "6:00 AM - 7:00 AM"
+    #         "time_slot": "06:00 AM - 7:00 AM"
     #         },
     #         {
     #         "id": 2,
     #         "task_name": "eat",
-    #         "time_slot": "7:30 AM - 8:00 AM"
+    #         "time_slot": "07:30 AM - 8:00 AM"
     #         },
     #         {
     #         "id": 3,
     #         "task_name": "gym",
-    #         "time_slot": "8:30 AM - 9:30 AM"
+    #         "time_slot": "08:30 AM - 9:30 AM"
     #         },
     #         {
     #         "id": 4,
