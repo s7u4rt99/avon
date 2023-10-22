@@ -155,6 +155,11 @@ export default function LandingScreen() {
       }
     }
     asyncStuff();
+
+    return () => {
+      // cleanup
+      AsyncStorage.clear();
+    };
   }, []);
 
   return (
