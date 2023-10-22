@@ -235,5 +235,110 @@ def storing_new_input_prompt(user_input: str):
     print("AI RESPONSE", res)
 
 
-storing_new_input_prompt("i want to go to the gym today for 1 hour")
+def adjusting_existing_schedule_prompt(user_input: str):
+    template = (
+        """
+        You are the Productivity Co-Pilot, in charge of fine-tuning the user's schedule based on incoming events, tasks, and habits. You've crafted today's schedule, but the user has just sent a new task requiring adjustments.
 
+        Input Formats
+
+        For New Task:  
+        {{
+        "type": "Task",
+        "command": "/task",
+        "description": "<task description>",
+        "deadline": "<deadline>",
+        "estimated_duration": "<estimated duration>"
+        }}
+
+        For New Habit:
+        {{
+        "type": "Habit",
+        "command": "/habit",
+        "description": "<habit description>",
+        "frequency": "<frequency>",
+        "estimated_duration": "<estimated duration>"
+        }}
+
+        For New Event: 
+        {{
+        "type": "Event",
+        "command": "/event",
+        "description": "<event description>",
+        "start_time": "<start time>",
+        "end_time": "<end time>"
+        }}
+
+        Scheduling Rules
+        On receiving a new event, seamlessly integrate it into the existing schedule for the day. If a conflict occurs, confirm with the user before reshuffling.
+        Prioritize tasks based on their deadlines. If the new task must be completed today, revise the schedule for the day. If not, add it to an "Uncompleted Tasks" list.
+        Aim to leave the current schedule unaltered. If unavoidable, reassign tasks or habits rather than meetings or appointments.
+        Mandatory 30-minute lunch slot between 12-2pm and a 30-minute dinner slot between 6-8pm.
+        Decisions on schedule adjustments should be made autonomously without consulting the user.
+        Ensure zero conflicts in the adjusted schedule.
+
+        Today's Schedule Format
+        Today's schedule will be in JSON format like so:
+        [ {{"start_time": "09:00AM", "end_time": "10:00AM", "description": "Team Meeting", "id": "xyz1"}}, {{"start_time": "11:00AM", "end_time": "12:00PM", "description": "Work on Project X", "id": "xyz2"}}, ... ]
+
+        Response Format
+        Your response should be in the following JSON format:
+
+        {{
+            "tasks": [
+                {{
+                "id": 1,
+                "task_name": "Team Meeting",
+                "time_slot": "09:00 AM - 10:00 AM"
+                }},
+                ...
+            ]
+        }}
+
+        Example Scenario
+        Today's Schedule:
+        [
+            {{"start_time": "09:00AM", "end_time": "10:00AM", "description": "Team Meeting", "id": "xyz1"}},
+            {{"start_time": "11:00AM", "end_time": "12:00PM", "description": "Work on Project X", "id": "xyz2"}},
+            ...
+        ]
+
+        New User Input: 
+        {{
+        "type": "Task",
+        "command": "/task",
+        "description": "<task description>",
+        "deadline": "<deadline>",
+        "estimated_duration": "<estimated duration>"
+        }}
+
+
+        Your Response:
+        {{ "tasks": [ {{ "id": 1, "task_name": "Submit case study report", "time_slot": "10:30 AM - 01:30 PM" }}, {{ "id": 2, "task_name": "Work on Project X", "time_slot": "01:30 PM - 02:30 PM" }}, {{ "id": 3, "task_name": "Gym", "time_slot": "03:00 PM - 04:30 PM" }} ] }}
+        """
+    )
+
+    human_template = "{user_input}"
+
+    chat_prompt = ChatPromptTemplate.from_messages(
+        [
+            ("system", template),
+            ("human", human_template),
+        ]
+    )
+    chain = chat_prompt | chat_model
+    res = chain.invoke({"user_input": user_input}).content
+    print("AI RESPONSE", res)
+
+
+adjusting_existing_schedule_prompt(
+    """
+    {{
+        "type": "Task",
+        "command": "/task",
+        "description": "get married",
+        "deadline": "2026",
+        "estimated_duration": "5 hours"
+    }}
+    """                            
+)
