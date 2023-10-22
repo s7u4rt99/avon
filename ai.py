@@ -392,15 +392,15 @@ def night_new_schedule_prompt(user_input: str):
     print("AI RESPONSE", res)
 
 
-night_new_schedule_prompt(
-    """
-    Uncompleted Tasks:
-    [ {"id": 1, "description": "Finish presentation slides", "deadline": "next Tuesday", "estimated_duration": "2hrs"}, {"id": 2, "description": "Review marketing proposal", "deadline": "this Friday", "estimated_duration": "1hr"} ]
+# night_new_schedule_prompt(
+#     """
+#     Uncompleted Tasks:
+#     [ {"id": 1, "description": "Finish presentation slides", "deadline": "next Tuesday", "estimated_duration": "2hrs"}, {"id": 2, "description": "Review marketing proposal", "deadline": "this Friday", "estimated_duration": "1hr"} ]
 
-    Existing Events on Calendar:
-    [ {"start_time": "09:00AM", "end_time": "10:00AM", "description": "Team Meeting", "id": "xyz1"}]
+#     Existing Events on Calendar:
+#     [ {"start_time": "09:00AM", "end_time": "10:00AM", "description": "Team Meeting", "id": "xyz1"}]
 
-    Habit Goals:
-    [ {"id": 1, "description": "Gym", "frequency": "thrice a week", "estimated_duration": "1.5 hrs"}, {"id": 2, "description": "Meditate", "frequency": "daily", "estimated_duration": "0.5 hr"} ]
-    """                            
-)
+#     Habit Goals:
+#     [ {"id": 1, "description": "Gym", "frequency": "thrice a week", "estimated_duration": "1.5 hrs"}, {"id": 2, "description": "Meditate", "frequency": "daily", "estimated_duration": "0.5 hr"} ]
+#     """                            
+# )
