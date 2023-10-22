@@ -27,4 +27,4 @@ def schedule_message_job(user_id: int, message: str, time: datetime):
     print(f'Job created: {response.name}')
 
 
-schedule_message_job(17, 'test', datetime.now() + timedelta(minutes=1))
+# schedule_message_job(17, 'vishnu', datetime.now() + timedelta(minutes=1))
