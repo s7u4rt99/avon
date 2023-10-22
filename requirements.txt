@@ -1,12 +1,12 @@
 fastapi==0.104.0
 google-api-python-client==2.102.0
 google-auth-oauthlib==1.1.0
+google-cloud-scheduler==2.11.2
 httpx==0.24.1
 itsdangerous==2.1.2
 langchain==0.0.308
 openai==0.28.1
 pytz==2023.3
 python-dotenv==1.0.0
-python-telegram-bot==20.4
 supabase==1.2.0
 terra-python==0.0.11

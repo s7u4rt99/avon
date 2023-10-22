@@ -3,15 +3,20 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.logger import logger
 from fastapi.responses import JSONResponse
 import requests
-from starlette.middleware.sessions import SessionMiddleware
 import os
 import google_auth_oauthlib.flow
-from constants import BASE_URL, GOOGLE_SCOPES
 import logging
 import db
 import ai
-from terra.base_client import Terra
 import json
+from fastapi import FastAPI, Request, Response
+from fastapi.logger import logger
+from starlette.middleware.sessions import SessionMiddleware
+from constants import BASE_URL, GOOGLE_SCOPES
+from typing import List, TypedDict, Union
+from dotenv import load_dotenv
+from supabase.client import create_client
+from terra.base_client import Terra
 from supabase.client import create_client
 from dotenv import load_dotenv
 
@@ -190,7 +195,7 @@ async def google_oauth_callback(request: Request, response: Response):
         except:
             raise Exception("state not in session")
         email = state.get("email", "")
-        username = state.get("username", "")
+        username = email.split("@")[0] if email.find("@") > 0 else email
     else:
         raise Exception("state not in session")
     flow = google_auth_oauthlib.flow.Flow.from_client_config(
@@ -228,7 +233,6 @@ async def google_oauth_callback(request: Request, response: Response):
         # Add firebase user add
       supabase.table("Users").insert(data).execute()
     
-
     # Create a Response object with the 307 redirect status code
     json_compatible_item_data = jsonable_encoder("You can close this window now")
     return JSONResponse(content=json_compatible_item_data)
@@ -278,6 +282,7 @@ async def handle_widget_response_failure(
     return {"response": "close the browser window"}
 
 
+
 @app.get("/listTerraUsers")
 async def list_terra_users():
     return {"users": terra.list_users().get_parsed_response()}
@@ -287,11 +292,13 @@ async def list_terra_users():
 async def consume_terra_webhook(request: Request):
     body = await request.body()
     body_dict = json.loads(body.decode())
-    return {
-        "user": body_dict.get("user", {}).get("user_id"),
-        "type": body_dict["type"],
-        "data": body_dict["data"],
-    }
+    return {"user": body_dict.get("user", {}).get("user_id"), "type": body_dict["type"], "data": body_dict["data"]}
+
+
+# for testing purposes only
+@app.post("/message/{user_id}")
+def message(user_id: int, message: str):
+    return db.message(user_id, message)
 
 
 @app.post("/send_notification/")
