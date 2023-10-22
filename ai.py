@@ -331,14 +331,76 @@ def adjusting_existing_schedule_prompt(user_input: str):
     print("AI RESPONSE", res)
 
 
-adjusting_existing_schedule_prompt(
+def night_new_schedule_prompt(user_input: str):
+    template = (
+        """
+       You are the Night-time Productivity Co-Pilot, responsible for crafting the user's schedule for the next day. Take into consideration the user's uncompleted tasks, existing events on the calendar, and habit goals. Generate the most optimized schedule, while adhering to any constraints like meal times.
+
+        Input Formats
+        Uncompleted Tasks:
+        A list in JSON format like so:
+        [ {{"id": 1, "description": "Finish presentation slides", "deadline": "next Tuesday", "estimated_duration": "2hrs"}}, {{"id": 2, "description": "Review marketing proposal", "deadline": "this Friday", "estimated_duration": "1hr"}}, ... ]
+
+        Existing Events on Calendar:
+        A list in JSON format similar to the one provided for today's schedule:
+
+        [ {{"start_time": "09:00AM", "end_time": "10:00AM", "description": "Team Meeting", "id": "xyz1"}}, ... ]
+
+        Habit Goals:
+        A list in JSON format:
+        [ {{"id": 1, "description": "Gym", "frequency": "thrice a week", "estimated_duration": "1.5 hrs"}}, {{"id": 2, "description": "Meditate", "frequency": "daily", "estimated_duration": "0.5 hr"}}, ... ]
+
+        Scheduling Rules
+        On receiving a new event, seamlessly integrate it into the existing schedule for the day. If a conflict occurs, confirm with the user before reshuffling.
+        Prioritize tasks based on their deadlines. If the new task must be completed today, revise the schedule for the day. If not, add it to an "Uncompleted Tasks" list.
+        Aim to leave the current schedule unaltered. If unavoidable, reassign tasks or habits rather than meetings or appointments.
+        Mandatory 30-minute lunch slot between 12-2pm and a 30-minute dinner slot between 6-8pm.
+        Decisions on schedule adjustments should be made autonomously without consulting the user.
+        Ensure zero conflicts in the adjusted schedule.
+
+        Response Format
+        Your response should be in the following JSON format:
+
+
+        {{ "tasks": [ {{ "id": 1, "task_name": "Team Meeting", "time_slot": "09:00 AM - 10:00 AM" }}, ... ] }}
+
+        Example Scenario
+        Uncompleted Tasks:
+        [ {{"id": 1, "description": "Finish presentation slides", "deadline": "next Tuesday", "estimated_duration": "2hrs"}}, {{"id": 2, "description": "Review marketing proposal", "deadline": "this Friday", "estimated_duration": "1hr"}} ]
+
+        Existing Events:
+        [ {{"start_time": "09:00AM", "end_time": "10:00AM", "description": "Team Meeting", "id": "xyz1"}} ]
+
+        Habit Goals:
+        [ {{"id": 1, "description": "Gym", "frequency": "thrice a week", "estimated_duration": "1.5 hrs"}}, {{"id": 2, "description": "Meditate", "frequency": "daily", "estimated_duration": "0.5 hr"}} ]
+
+        Your Response:
+        {{ "tasks": [ {{ "id": 1, "task_name": "Team Meeting", "time_slot": "09:00 AM - 10:00 AM" }}, {{ "id": 2, "task_name": "Finish presentation slides", "time_slot": "10:30 AM - 12:30 PM" }}, {{ "id": 3, "task_name": "Gym", "time_slot": "01:00 PM - 02:30 PM" }}, {{ "id": 4, "task_name": "Meditate", "time_slot": "03:00 PM - 03:30 PM" }} ] }}
+        """
+    )
+
+    human_template = "{user_input}"
+
+    chat_prompt = ChatPromptTemplate.from_messages(
+        [
+            ("system", template),
+            ("human", human_template),
+        ]
+    )
+    chain = chat_prompt | chat_model
+    res = chain.invoke({"user_input": user_input}).content
+    print("AI RESPONSE", res)
+
+
+night_new_schedule_prompt(
     """
-    {{
-        "type": "Task",
-        "command": "/task",
-        "description": "get married",
-        "deadline": "2026",
-        "estimated_duration": "5 hours"
-    }}
+    Uncompleted Tasks:
+    [ {"id": 1, "description": "Finish presentation slides", "deadline": "next Tuesday", "estimated_duration": "2hrs"}, {"id": 2, "description": "Review marketing proposal", "deadline": "this Friday", "estimated_duration": "1hr"} ]
+
+    Existing Events on Calendar:
+    [ {"start_time": "09:00AM", "end_time": "10:00AM", "description": "Team Meeting", "id": "xyz1"}]
+
+    Habit Goals:
+    [ {"id": 1, "description": "Gym", "frequency": "thrice a week", "estimated_duration": "1.5 hrs"}, {"id": 2, "description": "Meditate", "frequency": "daily", "estimated_duration": "0.5 hr"} ]
     """                            
 )

@@ -25,6 +25,3 @@ def schedule_message_job(user_id: int, message: str, time: datetime):
     # Create the job
     response = client.create_job(parent=parent, job=job)
     print(f'Job created: {response.name}')
-
-
-schedule_message_job(5, 'testing', datetime.now() + timedelta(minutes=1))
