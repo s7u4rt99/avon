@@ -316,8 +316,9 @@ async def register_push_token(request: TokenData):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/send_notification")
-async def send_notification(token: str, message: str):
+@app.post("/send_notification/{user_id}")
+async def send_notification(user_id: int, token: str, message: str):
+    email = db.get_user(user_id).get("email")
     url = "https://exp.host/--/api/v2/push/send"
     data = {
         "to": token,
@@ -325,6 +326,7 @@ async def send_notification(token: str, message: str):
         "body": message
     }
     response = requests.post(url, json=data)
+    FirebaseService.write_chat_message(email, message, None)
     return {"status": "Notification sent", "response": response.json()}
 
 
