@@ -314,7 +314,7 @@ async def register_push_token(request: TokenData):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/send_notification/")
+@app.post("/send_notification")
 async def send_notification(token: str, message: str):
     url = "https://exp.host/--/api/v2/push/send"
     data = {
