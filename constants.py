@@ -12,9 +12,9 @@ class Command(str, Enum):
 
 
 BASE_URL = (
-    "https://avon-seven.vercel.app"
-    if os.getenv("ENVIRONMENT") != "dev"
-    else "http://127.0.0.1:8000"
+    "http://127.0.0.1:8000"
+    if os.getenv("ENVIRONMENT") != "prod"
+    else "https://avon-seven.vercel.app"
 )
 GOOGLE_SCOPES = ["https://www.googleapis.com/auth/calendar.events"]
 
