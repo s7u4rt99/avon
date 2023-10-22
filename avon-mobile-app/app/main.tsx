@@ -52,7 +52,7 @@ export default function MainScreen() {
               },
               hasBeenTypedOut: true,
             }));
-          setMessages(firebaseMessages);
+          setMessages(firebaseMessages.reverse());
         });
       } catch (e) {
         alert(e);
