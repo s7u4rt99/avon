@@ -6,9 +6,9 @@ import {
   ThemeProvider,
 } from "@react-navigation/native";
 import { useFonts } from "expo-font";
-import { Link, SplashScreen, Stack } from "expo-router";
+import { SplashScreen, Stack } from "expo-router";
 import { useEffect } from "react";
-import { Pressable, useColorScheme } from "react-native";
+import { useColorScheme } from "react-native";
 import { MonoText } from "../components/StyledText";
 
 export {
@@ -18,7 +18,7 @@ export {
 
 export const unstable_settings = {
   // Ensure that reloading on `/modal` keeps a back button present.
-  initialRouteName: "(tabs)",
+  initialRouteName: "index",
 };
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -53,33 +53,26 @@ function RootLayoutNav() {
 
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      <Stack>
+      <Stack initialRouteName="index">
         <Stack.Screen
           name="index"
           options={{
-            headerTitle(props) {
-              return <MonoText style={{ fontSize: 20 }}>avon chat</MonoText>;
-            },
-            headerShadowVisible: false,
-            headerRight: () => (
-              <Link href="/modal" asChild>
-                <Pressable>
-                  {({ pressed }) => (
-                    <FontAwesome
-                      name="gear"
-                      size={30}
-                      color={colorScheme === "dark" ? "white" : "black"}
-                      style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
-                    />
-                  )}
-                </Pressable>
-              </Link>
-            ),
+            headerShown: false,
           }}
         />
         <Stack.Screen
-          name="modal"
-          options={{ headerShown: false, presentation: "modal" }}
+          name="login"
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="main"
+          options={{
+            headerTitle: (_p) => <MonoText>avon chat</MonoText>,
+            headerTitleAlign: "center",
+            headerLeft: (props) => <></>,
+          }}
         />
       </Stack>
     </ThemeProvider>

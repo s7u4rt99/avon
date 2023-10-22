@@ -1,223 +1,216 @@
+import { StatusBar } from "expo-status-bar";
+import { MonoText } from "../components/StyledText";
+import TypeWriter from "react-native-typewriter";
+import StyledButton from "../components/StyledButton";
+import { Link } from "expo-router";
+import React, { useState } from "react";
 import {
-  Pressable,
-  SafeAreaView,
+  View,
+  Platform,
+  ImageBackground,
   StyleSheet,
-  useColorScheme,
 } from "react-native";
-import { Text, View } from "../components/Themed";
-import React, { useState, useCallback, useEffect } from "react";
-import {
-  Composer,
-  Bubble,
-  GiftedChat,
-  IMessage,
-  InputToolbar,
-  InputToolbarProps,
-} from "react-native-gifted-chat";
-import FontAwesome from "@expo/vector-icons/FontAwesome";
-import * as Haptics from "expo-haptics";
-import Colors from "../constants/Colors";
+import * as Device from "expo-device";
+import * as Notifications from "expo-notifications";
+import Constants from "expo-constants";
 
-interface Message extends IMessage {
-  hasBeenTypedOut: boolean;
+// Notifications.setNotificationHandler({
+//   handleNotification: async () => ({
+//     shouldShowAlert: true,
+//     shouldPlaySound: false,
+//     shouldSetBadge: false,
+//   }),
+// });
+
+// Can use this function below or use Expo's Push Notification Tool from: https://expo.dev/notifications
+async function sendPushNotification(
+  expoPushToken: Notifications.ExpoPushToken
+) {
+  const message = {
+    to: expoPushToken,
+    sound: "default",
+    title: "Original Title",
+    body: "And here is the body!",
+    data: { someData: "goes here" },
+  };
+
+  await fetch("https://exp.host/--/api/v2/push/send", {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Accept-encoding": "gzip, deflate",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(message),
+  });
 }
 
-export default function MainScreen() {
-  const [messages, setMessages] = useState<Array<Message>>([]);
-  const colorScheme = useColorScheme();
-  useEffect(() => {
-    setMessages([
-      {
-        _id: 2,
-        text: "Hello developer back",
-        createdAt: new Date(),
-        user: {
-          _id: 1,
-          name: "React Native",
-          avatar: "https://placeimg.com/140/140/any",
-        },
-        hasBeenTypedOut: false,
-      },
-      {
-        _id: 1,
-        text: "Hello developer!",
-        createdAt: new Date(),
-        user: {
-          _id: 2,
-          name: "React Native",
-          avatar: "https://placeimg.com/140/140/any",
-        },
-        hasBeenTypedOut: false,
-      },
-    ]);
-  }, []);
+async function registerForPushNotificationsAsync() {
+  let token;
 
-  const onSend = useCallback((messages: Array<Message> = []) => {
-    setMessages((previousMessages) =>
-      GiftedChat.append(previousMessages, messages)
-    );
-  }, []);
+  if (Platform.OS === "android") {
+    Notifications.setNotificationChannelAsync("default", {
+      name: "default",
+      importance: Notifications.AndroidImportance.MAX,
+      vibrationPattern: [0, 250, 250, 250],
+      lightColor: "#FF231F7C",
+    });
+  }
+
+  if (Device.isDevice) {
+    const { status: existingStatus } =
+      await Notifications.getPermissionsAsync();
+    let finalStatus = existingStatus;
+    if (existingStatus !== "granted") {
+      const { status } = await Notifications.requestPermissionsAsync();
+      finalStatus = status;
+    }
+    if (finalStatus !== "granted") {
+      alert("Failed to get push token for push notification!");
+      return;
+    }
+    token = await Notifications.getExpoPushTokenAsync({
+      projectId: Constants.expoConfig!.extra!.eas!.projectId!,
+    });
+    console.log("EXPO TOKEN NEEDED", token);
+  } else {
+    alert("Must use physical device for Push Notifications");
+  }
+
+  return token;
+}
+
+const landing = require("../assets/images/landing.png");
+
+function TypewriterComponent({ children }: { children?: React.ReactNode }) {
+  const [direction, setDirection] = useState<1 | -1>(1);
+  const linesToShow = ["Hi,\nI'm Avon!", "Your very own personal assistant"];
+  const [lineIdxToShow, setLineIdxToShow] = useState<number>(0);
+  return (
+    <View>
+      <MonoText style={styles.title}>
+        <TypeWriter
+          fixed
+          typing={direction}
+          initialDelay={300}
+          onTypingEnd={() => {
+            setTimeout(() => {
+              setDirection(direction === -1 ? 1 : -1);
+            }, 500);
+            if (direction === -1) {
+              setLineIdxToShow((lineIdxToShow + 1) % linesToShow.length);
+            }
+          }}
+        >
+          {linesToShow?.[lineIdxToShow]}
+        </TypeWriter>
+      </MonoText>
+    </View>
+  );
+}
+
+export default function LandingScreen() {
+  // const [expoPushToken, setExpoPushToken] = useState<
+  //   Notifications.ExpoPushToken | undefined
+  // >(undefined);
+  // const [notification, setNotification] = useState<
+  //   Notifications.Notification | undefined
+  // >(undefined);
+  // const notificationListener = useRef<Notifications.Subscription>();
+  // const responseListener = useRef<Notifications.Subscription>();
+
+  // useEffect(() => {
+  //   async function asyncStuff() {
+  //     const token = await registerForPushNotificationsAsync();
+  //     if (token) {
+  //       setExpoPushToken(token);
+  //     }
+
+  //     notificationListener.current =
+  //       Notifications.addNotificationReceivedListener((notification) => {
+  //         setNotification(notification);
+  //       });
+
+  //     responseListener.current =
+  //       Notifications.addNotificationResponseReceivedListener((response) => {
+  //         console.log(response);
+  //       });
+  //   }
+  //   asyncStuff();
+
+  //   return () => {
+  //     if (notificationListener.current) {
+  //       Notifications.removeNotificationSubscription(
+  //         notificationListener.current
+  //       );
+  //     }
+  //     if (responseListener.current) {
+  //       Notifications.removeNotificationSubscription(responseListener.current);
+  //     }
+  //   };
+  // }, []);
 
   return (
-    <SafeAreaView
-      style={[
-        styles.boundary,
-        { backgroundColor: colorScheme === "dark" ? "#000" : "#fff" },
-      ]}
-    >
-      <View style={styles.container}>
-        {/* <View style={styles.titleContainer}>
-          <Text style={styles.title}>avon chat</Text>
-        </View> */}
-        <View style={styles.chatContainer}>
-          <GiftedChat
-            messages={messages}
-            onSend={(messages) =>
-              onSend(messages.map((m) => ({ ...m, hasBeenTypedOut: true })))
-            }
-            user={{
-              _id: 1,
-            }}
-            listViewProps={{
-              keyboardDismissMode: "on-drag",
-            }}
-            timeTextStyle={{
-              left: { color: colorScheme === "dark" ? "#000" : "#fff" },
-              right: { color: colorScheme === "dark" ? "#fff" : "#000" },
-            }}
-            renderAvatar={null}
-            renderBubble={(props) => {
-              return (
-                <Bubble
-                  {...props}
-                  wrapperStyle={{
-                    left: {
-                      backgroundColor: colorScheme === "dark" ? "#fff" : "#000",
-                    },
-                    right: {
-                      backgroundColor:
-                        colorScheme === "dark" ? "#262626" : "#adadad",
-                    },
-                  }}
-                  containerStyle={{
-                    left: {
-                      marginBottom: "5%",
-                    },
-                    right: {
-                      marginBottom: "5%",
-                    },
-                  }}
-                  bottomContainerStyle={{
-                    // The time below text in a bubble
-                    left: {
-                      paddingHorizontal: "5%",
-                      marginBottom: "2%",
-                    },
-                    right: {
-                      marginBottom: "2%",
-                      paddingHorizontal: "5%",
-                    },
-                  }}
-                  textStyle={{
-                    left: {
-                      paddingHorizontal: "5%",
-                      paddingTop: "2%",
-                      color: colorScheme === "dark" ? "#000" : "#fff",
-                    },
-                    right: {
-                      paddingHorizontal: "5%",
-                      paddingTop: "2%",
-                      color: colorScheme === "dark" ? "#fff" : "#000",
-                    },
-                  }}
-                />
-              );
-            }}
-            renderUsernameOnMessage={false}
-            renderInputToolbar={(toolbarProps: InputToolbarProps<IMessage>) => {
-              return (
-                <InputToolbar
-                  {...toolbarProps}
-                  onPressActionButton={toolbarProps.onPressActionButton}
-                  renderComposer={(props) => {
-                    return (
-                      <Composer
-                        {...props}
-                        textInputAutoFocus={true}
-                        textInputProps={{
-                          spellCheck: true,
-                        }}
-                        placeholder="what's up?"
-                        placeholderTextColor="gray"
-                        textInputStyle={[styles.textBox, { color: colorScheme === "dark" ? "#fff" : "#000" }]}
-                      />
-                    );
-                  }}
-                  containerStyle={[
-                    styles.textBoxContainer,
-                    {
-                      backgroundColor: colorScheme === "dark" ? "#000" : "#fff",
-                    },
-                  ]}
-                  renderSend={(props) => {
-                    return (
-                      <Pressable
-                        onPress={() => {
-                          props.onSend &&
-                            props.onSend({ text: props?.text?.trim() }, true);
-                          Haptics.impactAsync(
-                            Haptics.ImpactFeedbackStyle.Light
-                          );
-                        }}
-                      >
-                        <FontAwesome
-                          name="chevron-circle-up"
-                          size={30}
-                          color={colorScheme === "dark" ? "#fff" : "#2e78b7"}
-                          style={{ marginRight: "5%", marginBottom: "20%" }}
-                        />
-                      </Pressable>
-                    );
-                  }}
-                />
-              );
-            }}
-          />
+    <View style={styles.container}>
+      <ImageBackground resizeMode="cover" source={landing} style={styles.bg}>
+        <View style={{ flex: 1, minWidth: "100%", paddingTop: "50%" }}>
+          <TypewriterComponent />
         </View>
-      </View>
-    </SafeAreaView>
+        {/* <Text>Your expo push token: {String(expoPushToken)}</Text>
+        <View style={{ alignItems: "center", justifyContent: "center" }}>
+          <Text>
+            Title: {notification && notification.request.content.title}{" "}
+          </Text>
+          <Text>Body: {notification && notification.request.content.body}</Text>
+          <Text>
+            Data:{" "}
+            {notification && JSON.stringify(notification.request.content.data)}
+          </Text>
+        </View>
+        <Button
+          title="Press to Send Notification"
+          onPress={async () => {
+            if (expoPushToken) {
+              await sendPushNotification(expoPushToken);
+            }
+          }}
+        /> */}
+        <Link href="/login" asChild>
+          <StyledButton
+            style={{
+              width: "50%",
+              alignSelf: "center",
+              alignItems: "center",
+              justifyContent: "center",
+              marginBottom: "50%",
+            }}
+          >
+            <MonoText>Continue</MonoText>
+          </StyledButton>
+        </Link>
+        <StatusBar style={Platform.OS === "ios" ? "light" : "auto"} />
+      </ImageBackground>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  boundary: {
-    flex: 1,
-  },
   container: {
     flex: 1,
-    flexDirection: "column",
-  },
-  titleContainer: {
-    flex: 1 / 8,
     alignItems: "center",
     justifyContent: "center",
   },
+  bg: {
+    flex: 1,
+  },
   title: {
-    fontSize: 20,
+    fontSize: 60,
+    fontVariant: ["small-caps"],
     fontWeight: "bold",
   },
   separator: {
     marginVertical: 30,
     height: 1,
     width: "80%",
-  },
-  chatContainer: {
-    flex: 8 / 8,
-    marginBottom: "5%",
-  },
-  textBoxContainer: {},
-  textBox: {
-    marginTop: "5%",
-    marginLeft: "5%",
   },
 });

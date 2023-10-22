@@ -177,4 +177,3 @@ def plan_tasks(user_id: int):
             print(f"Marked added {task['id']}")
 
     return tasks
-
