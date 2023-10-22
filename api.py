@@ -38,7 +38,7 @@ google_oauth_client_config = {
         "token_uri":"https://oauth2.googleapis.com/token",
         "auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs",
         "client_secret": os.environ.get("GOOGLE_CLIENT_SECRET"),
-        "redirect_uris":["http://127.0.0.1:8000/google_oauth_callback"],
+        "redirect_uris":["https://avon-seven.vercel.app/google_oauth_callback"],
         "javascript_origins":["http://localhost:8081"]
     }
 }
