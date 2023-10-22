@@ -160,7 +160,13 @@ export default function LandingScreen() {
   return (
     <View style={styles.container}>
       <ImageBackground resizeMode="cover" source={landing} style={styles.bg}>
-        <View style={{ flex: 1, minWidth: "100%", paddingTop: "50%" }}>
+        <View
+          style={{
+            flex: 1,
+            paddingTop: "50%",
+            paddingHorizontal: "5%",
+          }}
+        >
           <TypewriterComponent />
         </View>
         {/* <Text>Your expo push token: {String(expoPushToken)}</Text>
@@ -204,8 +210,6 @@ export default function LandingScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
   },
   bg: {
     flex: 1,

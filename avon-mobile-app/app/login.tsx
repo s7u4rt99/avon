@@ -35,7 +35,7 @@ export default function LoginScreen() {
     }
     asyncStuff();
   }, []);
-  
+
   useEffect(() => {
     if (email) {
       checkUserConnectedGoogle();
@@ -62,9 +62,9 @@ export default function LoginScreen() {
     }
   }
 
-  async function checkUserConnectedGoogle () {
+  async function checkUserConnectedGoogle() {
     try {
-      const emailResponse = await axios.get<{ email: string; }>(
+      const emailResponse = await axios.get<{ email: string }>(
         BASE_URL + "/users/email/" + email.toLowerCase()
       );
       if (emailResponse.status === 200 && emailResponse.data) {
@@ -76,7 +76,7 @@ export default function LoginScreen() {
     } catch (e) {
       console.log(e);
     }
-  };
+  }
 
   return (
     <View style={styles.container}>
@@ -95,9 +95,9 @@ export default function LoginScreen() {
                 typing={1}
                 maxDelay={10}
                 onTypingEnd={() => {
-                  // setTimeout(() => {
+                  setTimeout(() => {
                     setShowAll(true);
-                  // }, 200);
+                  }, 200);
                 }}
               >
                 We'll need you to connect the following to get you started
@@ -119,7 +119,10 @@ export default function LoginScreen() {
                 placeholder="Enter your email"
               />
               <StyledButton
-                style={styles.actionButton}
+                style={[
+                  styles.actionButton,
+                  { backgroundColor: !email ? "#4285F4" : undefined },
+                ]}
                 disabled={!email}
                 onPress={connectToGoogle}
               >
@@ -128,7 +131,10 @@ export default function LoginScreen() {
                 </MonoText>
               </StyledButton>
               <StyledButton
-                style={styles.actionButton}
+                style={[
+                  styles.actionButton,
+                  { backgroundColor: !email ? "#4285F4" : undefined },
+                ]}
                 onPress={checkUserConnectedGoogle}
                 disabled={!email}
               >
@@ -136,7 +142,10 @@ export default function LoginScreen() {
               </StyledButton>
               <StyledButton
                 onPress={() => router.canGoBack() && router.back()}
-                style={styles.actionButton}
+                style={[
+                  styles.actionButton,
+                  { backgroundColor: !email ? "#4285F4" : undefined },
+                ]}
               >
                 <MonoText>Back</MonoText>
               </StyledButton>
