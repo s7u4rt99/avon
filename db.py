@@ -166,15 +166,5 @@ def fetch_tasks_formatted(user_id: int):
 
 
 # for testing purposes only
-def message(
-    message: str
-):
-    return (
-        supabase.table("MessageTest")
-        .insert(
-            {
-                "message": message
-            }
-        )
-        .execute()
-    )
+def message(user_id: int, message: str):
+    return (supabase.table("MessageTest").insert({"user_id": user_id, "message": message}).execute())
