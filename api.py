@@ -1,19 +1,18 @@
-from fastapi import FastAPI, Request, Response
-from fastapi.logger import logger
 import requests
-from starlette.middleware.sessions import SessionMiddleware
 import os
 import google_auth_oauthlib.flow
-from constants import BASE_URL, GOOGLE_SCOPES
 import logging
 import db
 import ai
-
+import json
+from fastapi import FastAPI, Request, Response
+from fastapi.logger import logger
+from starlette.middleware.sessions import SessionMiddleware
+from constants import BASE_URL, GOOGLE_SCOPES
 from typing import List, TypedDict, Union
 from dotenv import load_dotenv
 from supabase.client import create_client
 from terra.base_client import Terra
-import json
 
 # Ensure that all requests include an 'example.com' or
 # '*.example.com' host header, and strictly enforce https-only access.
@@ -54,6 +53,7 @@ async def ping():
 @app.get("/users/")
 async def get_users():
     return db.get_users()
+
 
 @app.get("/users/{user_id}")
 async def get_user(user_id: int):
@@ -203,16 +203,19 @@ async def generate_widget_session(user_id: int):
 
     return {"widget_response": widget_response}
 
+
 @app.get("/widgetResponseSuccess")
 async def handle_widget_response_success(user_id: str, reference_id: str, resource: str):
     db.edit_user(reference_id, terra_user_id=user_id)
     return {"response": "close the browser window"}
+
 
 @app.get("/widgetResponseFailure")
 async def handle_widget_response_failure(user_id: str, resource: str, reference_id: str, lan: str, reason: str):
     # TODO: Handle failure
     db.edit_user(reference_id, terra_user_id=user_id)
     return {"response": "close the browser window"}
+
 
 @app.get("/listTerraUsers")
 async def list_terra_users():
@@ -224,6 +227,13 @@ async def consume_terra_webhook(request: Request):
     body = await request.body()
     body_dict = json.loads(body.decode())
     return {"user": body_dict.get("user", {}).get("user_id"), "type": body_dict["type"], "data": body_dict["data"]}
+
+
+# for testing purposes only
+@app.post("/message/{user_id}")
+def message(user_id: int, message: str):
+    return db.message(user_id, message)
+
 
 @app.post("/send_notification/")
 async def send_notification(token: str, message: str):

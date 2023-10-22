@@ -163,3 +163,8 @@ def fetch_tasks_formatted(user_id: int):
     for task in tasks_json:
         tasks += str(task["id"]) + ": " + task["name"] + "\n"
     return tasks
+
+
+# for testing purposes only
+def message(user_id: int, message: str):
+    return (supabase.table("MessageTest").insert({"user_id": user_id, "message": message}).execute())

@@ -1,4 +1,5 @@
 import os
+import pytz
 from dotenv import load_dotenv
 from datetime import date, datetime, timedelta
 from json import dumps, loads
@@ -27,6 +28,12 @@ def time_slot_to_datetime(time_slot):
     start_time_str, end_time_str = time_slot.split(" - ")
 
     # Convert the start time and end time strings to datetime.time objects
+    if len(start_time_str) == 6:
+        start_time_str = "0" + start_time_str
+
+    if len(end_time_str) == 6:
+        end_time_str = "0" + end_time_str
+
     start_time = datetime.strptime(start_time_str, "%I:%M%p").time()
     end_time = datetime.strptime(end_time_str, "%I:%M%p").time()
 
@@ -59,12 +66,16 @@ def plan_tasks(user_id: int):
     user = get_user(user_id)
     refresh_token = user.get("google_refresh_token", "")
     # Get events from tomorrow 12am to tomorrow 11:59pm
-    today = datetime.utcnow() + timedelta(days=1)
-    today_midnight = datetime(today.year, today.month, today.day, 0, 0)
+    tomorrow = datetime.now(tz=pytz.timezone("America/New_York")) + timedelta(days=1)
+    print(tomorrow)
+    tomorrow_midnight = datetime(
+        tomorrow.year, tomorrow.month, tomorrow.day, 0, 0
+    )
+    print(tomorrow_midnight)
     events = get_calendar_events(
         refresh_token=refresh_token,
-        timeMin=today_midnight.isoformat() + "Z",
-        timeMax=(today_midnight + timedelta(days=1)).isoformat() + "Z",
+        timeMin=tomorrow_midnight.isoformat() + "Z",
+        timeMax=(tomorrow_midnight + timedelta(days=1)).isoformat() + "Z",
         k=20,
     )
 
@@ -102,17 +113,17 @@ def plan_tasks(user_id: int):
     #         {
     #         "id": 1,
     #         "task_name": "run",
-    #         "time_slot": "6:00 AM - 7:00 AM"
+    #         "time_slot": "06:00 AM - 7:00 AM"
     #         },
     #         {
     #         "id": 2,
     #         "task_name": "eat",
-    #         "time_slot": "7:30 AM - 8:00 AM"
+    #         "time_slot": "07:30 AM - 8:00 AM"
     #         },
     #         {
     #         "id": 3,
     #         "task_name": "gym",
-    #         "time_slot": "8:30 AM - 9:30 AM"
+    #         "time_slot": "08:30 AM - 9:30 AM"
     #         },
     #         {
     #         "id": 4,
