@@ -67,9 +67,11 @@ def plan_tasks(user_id: int):
     refresh_token = user.get("google_refresh_token", "")
     # Get events from tomorrow 12am to tomorrow 11:59pm
     tomorrow = datetime.now(tz=pytz.timezone("America/New_York")) + timedelta(days=1)
+    print(tomorrow)
     tomorrow_midnight = datetime(
         tomorrow.year, tomorrow.month, tomorrow.day, 0, 0
     )
+    print(tomorrow_midnight)
     events = get_calendar_events(
         refresh_token=refresh_token,
         timeMin=tomorrow_midnight.isoformat() + "Z",
