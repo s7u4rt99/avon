@@ -314,8 +314,7 @@ async def register_push_token(request: TokenData):
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/send_notification")
-async def send_notification(message: str):
-    token = "ExponentPushToken[_JnSVhHSGRZoBFKzUNLQ6X]"
+async def send_notification(token: str, message: str):
     url = "https://exp.host/--/api/v2/push/send"
     data = {
         "to": token,
