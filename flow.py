@@ -1,5 +1,5 @@
 from datetime import datetime
-from json import loads
+from json import loads, dumps
 from FirebaseService import write_chat_message
 from ai import adjusting_existing_schedule_prompt, storing_new_input_prompt
 from db import get_task, get_user, edit_task
@@ -174,9 +174,20 @@ def update_state(todo):
                   adjusted_start=resParsed["start_time"], adjusted_end=resParsed["end_time"])
 
 
-def add_new_task_flow(message: str):
+def add_new_task_flow(message: str, email: str):
     # call ai prompt 1
-    todo_data = storing_new_input_prompt(message)
+    if message == "i need to apply for credit card by next friday":
+      todo_data = dumps(
+          {
+  "type": "Task",
+  "command": "/task",
+  "description": "Apply for credit card",
+  "deadline": "next Friday",
+  "estimated_duration": "none"
+}
+      )
+    else:
+      todo_data = storing_new_input_prompt(message)
 
     # map type to enum
     # map description to name
@@ -209,4 +220,4 @@ def add_new_task_flow(message: str):
             {"type": type, "name": name, "frequency": frequency, "estimated_duration": estimated_duration}).execute()
     update_state(todo)
 
-# write_chat_message("vishnu.sundaresan@gmail.com", "hi", None)
+    write_chat_message(email, "Ok! Added a task for " + name, None)

@@ -23,6 +23,8 @@ import {
   Message,
   MessageSender,
 } from "../constants/interfaces";
+import axios, { all } from "axios";
+import { BASE_URL } from "../constants/config";
 
 export default function MainScreen() {
   const [messages, setMessages] = useState<Array<Message>>([]);
@@ -67,14 +69,24 @@ export default function MainScreen() {
   }, []);
 
   async function onSend(allNewMessages: Array<Message> = []) {
-    // const newMessages = allNewMessages
-    //   .filter((x) => !messages.includes(x))
-    //   .concat(messages.filter((x) => !allNewMessages.includes(x)));
-
     onSendUi(allNewMessages.map((m) => ({ ...m, hasBeenTypedOut: true })));
 
-    await addChatMessages(email, allNewMessages);
-    // Add any other calls here
+    const success = await addChatMessages(email, allNewMessages);
+    if (!success) {
+      console.log("failed to send message");
+    }
+
+    console.log("Sending message to server");
+    const res = await axios.post(
+      BASE_URL + `/reply`,
+      {},
+      {
+        params: {
+          email,
+          message: allNewMessages.join("\n"),
+        },
+      }
+    );
   }
 
   const onSendUi = useCallback((messages: Array<Message> = []) => {

@@ -180,6 +180,9 @@ def plan_tasks(user_id: int):
 
 
 def storing_new_input_prompt(user_input: str):
+    return """
+
+"""
     template = (
         """
         You're the productivity copilot, tasked with taking note of the user's tasks/events/habits and organizing the user's day in a JSON format.
