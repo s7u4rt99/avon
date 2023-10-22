@@ -28,6 +28,12 @@ def time_slot_to_datetime(time_slot):
     start_time_str, end_time_str = time_slot.split(" - ")
 
     # Convert the start time and end time strings to datetime.time objects
+    if len(start_time_str) == 7:
+        start_time_str = "0" + start_time_str
+
+    if len(end_time_str) == 7:
+        end_time_str = "0" + end_time_str
+
     start_time = datetime.strptime(start_time_str, "%I:%M%p").time()
     end_time = datetime.strptime(end_time_str, "%I:%M%p").time()
 
