@@ -71,6 +71,7 @@ function RootLayoutNav() {
           options={{
             headerTitle: (_p) => <MonoText>avon chat</MonoText>,
             headerTitleAlign: "center",
+            headerLeft: (props) => <></>,
           }}
         />
       </Stack>

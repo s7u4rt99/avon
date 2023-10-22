@@ -54,6 +54,7 @@ export default function LoginScreen() {
       );
       if (emailResponse.status === 200 && emailResponse.data) {
         setIsGoogleConnected(true);
+        router.push("/main");
       }
     } catch (e) {
       if (e instanceof Error) {
@@ -61,6 +62,12 @@ export default function LoginScreen() {
       }
     }
   };
+
+  useEffect(() => {
+    if (email) {
+      checkUserConnectedGoogle();
+    }
+  }, []);
   return (
     <View style={styles.container}>
       <ImageBackground resizeMode="cover" source={landing} style={styles.bg}>
