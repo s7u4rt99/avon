@@ -6,12 +6,10 @@ import {
   ThemeProvider,
 } from "@react-navigation/native";
 import { useFonts } from "expo-font";
-import { SplashScreen } from "expo-router";
+import { SplashScreen, Stack } from "expo-router";
 import { useEffect } from "react";
 import { useColorScheme } from "react-native";
-import LandingLayout from "./(landing)/_layout";
-import MainLayout from "./(main)/_layout";
-import LandingScreen from "./landing";
+import { MonoText } from "../components/StyledText";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -20,7 +18,7 @@ export {
 
 export const unstable_settings = {
   // Ensure that reloading on `/modal` keeps a back button present.
-  initialRouteName: "(landing)",
+  initialRouteName: "/landing",
 };
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -52,15 +50,30 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
-  const isLoggedIn = false; // Will be a hook.
 
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      {isLoggedIn ? (
-        <MainLayout />
-      ) : (
-        <LandingLayout />
-      )}
+      <Stack initialRouteName="index">
+        <Stack.Screen
+          name="index"
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="login"
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="main"
+          options={{
+            headerTitle: (_p) => <MonoText>avon chat</MonoText>,
+            headerTitleAlign: "center",
+          }}
+        />
+      </Stack>
     </ThemeProvider>
   );
 }

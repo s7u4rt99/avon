@@ -1,14 +1,14 @@
 import { StatusBar } from "expo-status-bar";
 import { ImageBackground, Platform, StyleSheet } from "react-native";
-import React, { useState } from "react";
+import React from "react";
 import { View } from "../components/Themed";
 import { MonoText } from "../components/StyledText";
-import TypeWriter from "react-native-typewriter";
 import StyledButton from "../components/StyledButton";
-import { Link } from "expo-router";
+import { Link, useRouter } from "expo-router";
 const landing = require("../assets/images/landing.png");
 
 export default function LoginScreen() {
+  const router = useRouter();
   return (
     <View style={styles.container}>
       <ImageBackground resizeMode="cover" source={landing} style={styles.bg}>
@@ -16,11 +16,12 @@ export default function LoginScreen() {
           <StyledButton style={styles.actionButton}>
             <MonoText>Connect Google</MonoText>
           </StyledButton>
-          <Link href="/landing" asChild>
-            <StyledButton style={styles.actionButton}>
-              <MonoText>Back</MonoText>
-            </StyledButton>
-          </Link>
+          <StyledButton
+            onPress={() => router.canGoBack() && router.back()}
+            style={styles.actionButton}
+          >
+            <MonoText>Back</MonoText>
+          </StyledButton>
         </View>
         <StatusBar style={Platform.OS === "ios" ? "light" : "auto"} />
       </ImageBackground>
