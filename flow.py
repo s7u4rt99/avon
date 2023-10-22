@@ -1,9 +1,24 @@
 from datetime import datetime
+from json import loads
 from FirebaseService import write_chat_message
 from ai import adjusting_existing_schedule_prompt, storing_new_input_prompt
 from db import get_task, get_user, edit_task
 from google_cal import add_calendar_event, get_calendar_events
+import os
 
+
+from dotenv import load_dotenv
+from supabase.client import create_client
+
+load_dotenv()
+
+API_URL = os.getenv("API_URL")
+API_KEY = os.getenv("API_KEY")
+
+if not API_URL or not API_KEY:
+    raise Exception("API_URL or API_KEY not found in .env file")
+
+supabase = create_client(API_URL, API_KEY)
 
 def reply_flow(todo_id: int, message: str):
     todo = get_task(todo_id)
@@ -193,3 +208,5 @@ def add_new_task_flow(message: str):
         todo = supabase.table("Tasks").insert(
             {"type": type, "name": name, "frequency": frequency, "estimated_duration": estimated_duration}).execute()
     update_state(todo)
+
+# write_chat_message("vishnu.sundaresan@gmail.com", "hi", None)

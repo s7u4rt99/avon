@@ -36,7 +36,10 @@ def get_token(user_id):
     return result or {}
 
 def write_chat_message(user_email: str, message: str, callback_str: Optional[str]):
+    email = email_to_key(user_email)
+    print(email)
     id = str(uuid.uuid4())
+    print(id)
     message: FirebaseMessage = {
         "id": id,
         "text": message,
@@ -44,5 +47,7 @@ def write_chat_message(user_email: str, message: str, callback_str: Optional[str
         "sentAt": datetime.now(tz=pytz.timezone("America/New_York")).isoformat(),
         "callback": callback_str
     }
-    result = firebase_app.post(f"/chats/{user_email}", message)
+    print(message)
+    result = firebase_app.post(f"/chats/{email}", message)
+    print(result)
     return result is not None
