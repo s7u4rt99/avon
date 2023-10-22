@@ -245,4 +245,3 @@ async def send_notification(token: str, message: str):
     }
     response = requests.post(url, json=data)
     return {"status": "Notification sent", "response": response.json()}
-
