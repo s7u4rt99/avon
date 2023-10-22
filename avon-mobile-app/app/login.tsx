@@ -17,6 +17,7 @@ import * as WebBrowser from "expo-web-browser";
 import TypeWriter from "react-native-typewriter";
 import axios from "axios";
 import { BASE_URL } from "../constants/config";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 const landing = require("../assets/images/landing.png");
 
 export default function LoginScreen() {
@@ -49,10 +50,12 @@ export default function LoginScreen() {
 
   const checkUserConnectedGoogle = async () => {
     try {
-      const emailResponse = await axios.get<string>(
+      const emailResponse = await axios.get<{ email: string; }>(
         BASE_URL + "/users/email/" + email.toLowerCase()
       );
       if (emailResponse.status === 200 && emailResponse.data) {
+        const email = emailResponse.data.email;
+        await AsyncStorage.setItem("email", email);
         setIsGoogleConnected(true);
         router.push("/main");
       }
@@ -120,6 +123,7 @@ export default function LoginScreen() {
               <StyledButton
                 style={styles.actionButton}
                 onPress={checkUserConnectedGoogle}
+                disabled={!email}
               >
                 <MonoText>Refresh</MonoText>
               </StyledButton>
