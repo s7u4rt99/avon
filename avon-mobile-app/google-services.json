@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "546498726861",
+    "firebase_url": "https://avon-402721-default-rtdb.firebaseio.com",
+    "project_id": "avon-402721",
+    "storage_bucket": "avon-402721.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:546498726861:android:0b163e46e6001ea50b9284",
+        "android_client_info": {
+          "package_name": "com.avon.mobile.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "546498726861-9rb4pfrs1p3k7k0jhg1gj4sgoe67diod.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCH4Aw0Hn7SX9zKLkVmqizutgpt4g5vRHo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "546498726861-9rb4pfrs1p3k7k0jhg1gj4sgoe67diod.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

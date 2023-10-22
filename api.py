@@ -1,7 +1,9 @@
-from fastapi import FastAPI, Request, Response
+
 from fastapi.encoders import jsonable_encoder
-from fastapi.logger import logger
 from fastapi.responses import JSONResponse
+from fastapi import FastAPI, HTTPException, Request, Response
+from fastapi.logger import logger
+from pydantic import BaseModel
 import requests
 import os
 import google_auth_oauthlib.flow
@@ -9,10 +11,10 @@ import logging
 import db
 import ai
 import json
-from fastapi import FastAPI, Request, Response
-from fastapi.logger import logger
 from starlette.middleware.sessions import SessionMiddleware
 from constants import BASE_URL, GOOGLE_SCOPES
+import FirebaseService
+
 from typing import List, TypedDict, Union
 from dotenv import load_dotenv
 from supabase.client import create_client
@@ -294,16 +296,32 @@ async def consume_terra_webhook(request: Request):
     body_dict = json.loads(body.decode())
     return {"user": body_dict.get("user", {}).get("user_id"), "type": body_dict["type"], "data": body_dict["data"]}
 
-
 # for testing purposes only
 @app.post("/message/{user_id}")
 def message(user_id: int, message: str):
     return db.message(user_id, message)
 
+class TokenData(BaseModel):
+    userId: str
+    token: str
+    
+@app.post("/registerPushToken")
+async def register_push_token(request: TokenData):
+    user_id = str(request.userId)
+    token = str(request.token)
+    try:
+        await FirebaseService.save_token(user_id, token)
+        return {"status": "success"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/send_notification/")
 async def send_notification(token: str, message: str):
     url = "https://exp.host/--/api/v2/push/send"
-    data = {"to": token, "title": "Your Title", "body": message}
+    data = {
+        "to": token,
+        "title": "Avon Notification",
+        "body": message
+    }
     response = requests.post(url, json=data)
     return {"status": "Notification sent", "response": response.json()}
