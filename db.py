@@ -103,6 +103,15 @@ def get_tasks_from_user(user_id: int):
         .data
     )
 
+def get_tasks_from_user_email(email: str):
+    return (
+        supabase.table("Tasks")
+        .select("*")
+        .eq("email", email)
+        .execute()
+        .data
+    )
+
 
 def add_task(user_id: int, name: str, description: str = "", recurring: bool = False):
     return (

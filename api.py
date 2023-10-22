@@ -14,7 +14,6 @@ import flow
 from starlette.middleware.sessions import SessionMiddleware
 from constants import BASE_URL, GOOGLE_SCOPES
 import FirebaseService
-from typing import List, TypedDict, Union
 from dotenv import load_dotenv
 from supabase.client import create_client
 from terra.base_client import Terra

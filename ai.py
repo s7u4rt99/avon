@@ -6,9 +6,8 @@ from json import dumps, loads
 from db import fetch_tasks_formatted, get_user, mark_task_as_added
 from google_cal import get_calendar_events
 from langchain.chat_models import ChatOpenAI
-from langchain.schema import HumanMessage
 from langchain.prompts.chat import ChatPromptTemplate
-from google_cal import GoogleCalendarEvent, add_calendar_event, get_calendar_events
+from google_cal import add_calendar_event, get_calendar_events
 
 load_dotenv()
 
@@ -393,6 +392,7 @@ def night_new_schedule_prompt(user_input: str):
     chain = chat_prompt | chat_model
     res = chain.invoke({"user_input": user_input}).content
     print("AI RESPONSE", res)
+    return res
 
 
 # night_new_schedule_prompt(

@@ -1,6 +1,5 @@
 from enum import Enum
-from typing import Any, Callable, Coroutine, List, Optional, Sequence, TypedDict, Union
-from db import get_user
+from typing import List, Optional, Sequence, TypedDict, Union
 from google_auth_oauthlib.flow import Flow
 from datetime import timedelta, datetime
 from os import getenv
