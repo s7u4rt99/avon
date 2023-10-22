@@ -337,5 +337,31 @@ def update_state(todo):
 def add_new_task_flow(message: str):
     # call ai prompt 1
     todo_data = storing_new_input_prompt(message)
-    todo = supabase.table("Tasks").insert(todo_data).execute()
+
+    # map type to enum
+    # map description to name
+    # add fields accordingly
+    # map start_time to event_start
+    # map end_time to event_end
+    # if gpt returns "none", convert to none
+
+    resParsed: dict = loads(todo_data)
+    
+    name = resParsed["description"]
+
+    if resParsed["type"] == "Task":
+        type = "tasks"
+        deadline = None if resParsed["deadline"] == "none" else resParsed["deadline"]
+        estimated_duration = None if resParsed["estimated_duration"] == "none" else resParsed["estimated_duration"]
+        todo = supabase.table("Tasks").insert({"type":type, "name": name, "deadline" : deadline, "estimated_duration": estimated_duration}).execute()
+    elif resParsed["type"] == "Event":
+        type = "events"
+        event_start = None if resParsed["start_time"] == "none" else resParsed["start_time"]
+        event_end = None if resParsed["end_time"] == "none" else resParsed["end_time"]
+        todo = supabase.table("Tasks").insert({"type":type, "name": name, "event_start" : event_start, "event_end": event_end}).execute()
+    elif resParsed["type"] == "Habit":
+        type = "habits"
+        frequency = None if resParsed["frequency"] == "none" else resParsed["frequency"]
+        estimated_duration = None if resParsed["estimated_duration"] == "none" else resParsed["estimated_duration"]
+        todo = supabase.table("Tasks").insert({"type":type, "name": name, "frequency" : frequency, "estimated_duration": estimated_duration}).execute()
     update_state(todo)
