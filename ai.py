@@ -177,3 +177,230 @@ def plan_tasks(user_id: int):
             print(f"Marked added {task['id']}")
 
     return tasks
+
+
+def storing_new_input_prompt(user_input: str):
+    template = (
+        """
+        You're the productivity copilot, tasked with taking note of the user's tasks/events/habits and organizing the user's day in a JSON format.
+
+        You have already come up with the user's schedule for today the previous night. However, the user just sent a new input.
+
+        Sort new inputs as "Event", "Task", or "Habit".
+
+        For New Events: Return a JSON object with the following structure:
+        
+        {{
+        "type": "Event",
+        "command": "/event",
+        "description": "<event description>",
+        "start_time": "<start time>",
+        "end_time": "<end time>"
+        }}
+
+        For New Tasks: Return a JSON object with the following structure:
+
+        {{
+        "type": "Task",
+        "command": "/task",
+        "description": "<task description>",
+        "deadline": "<deadline>",
+        "estimated_duration": "<estimated duration>"
+        }}
+
+        For New Habits: Return a JSON object with the following structure:
+
+        {{
+        "type": "Habit",
+        "command": "/habit",
+        "description": "<habit description>",
+        "frequency": "<frequency>",
+        "estimated_duration": "<estimated duration>"
+        }}
+
+        If the user didn't provide any of the required info, represent it with "none".
+        """
+    )
+
+    human_template = "{user_input}"
+
+    chat_prompt = ChatPromptTemplate.from_messages(
+        [
+            ("system", template),
+            ("human", human_template),
+        ]
+    )
+    chain = chat_prompt | chat_model
+    res = chain.invoke({"user_input": user_input}).content
+    print("AI RESPONSE", res)
+
+
+def adjusting_existing_schedule_prompt(user_input: str):
+    template = (
+        """
+        You are the Productivity Co-Pilot, in charge of fine-tuning the user's schedule based on incoming events, tasks, and habits. You've crafted today's schedule, but the user has just sent a new task requiring adjustments.
+
+        Input Formats
+
+        For New Task:  
+        {{
+        "type": "Task",
+        "command": "/task",
+        "description": "<task description>",
+        "deadline": "<deadline>",
+        "estimated_duration": "<estimated duration>"
+        }}
+
+        For New Habit:
+        {{
+        "type": "Habit",
+        "command": "/habit",
+        "description": "<habit description>",
+        "frequency": "<frequency>",
+        "estimated_duration": "<estimated duration>"
+        }}
+
+        For New Event: 
+        {{
+        "type": "Event",
+        "command": "/event",
+        "description": "<event description>",
+        "start_time": "<start time>",
+        "end_time": "<end time>"
+        }}
+
+        Scheduling Rules
+        On receiving a new event, seamlessly integrate it into the existing schedule for the day. If a conflict occurs, confirm with the user before reshuffling.
+        Prioritize tasks based on their deadlines. If the new task must be completed today, revise the schedule for the day. If not, add it to an "Uncompleted Tasks" list.
+        Aim to leave the current schedule unaltered. If unavoidable, reassign tasks or habits rather than meetings or appointments.
+        Mandatory 30-minute lunch slot between 12-2pm and a 30-minute dinner slot between 6-8pm.
+        Decisions on schedule adjustments should be made autonomously without consulting the user.
+        Ensure zero conflicts in the adjusted schedule.
+
+        Today's Schedule Format
+        Today's schedule will be in JSON format like so:
+        [ {{"start_time": "09:00AM", "end_time": "10:00AM", "description": "Team Meeting", "id": "xyz1"}}, {{"start_time": "11:00AM", "end_time": "12:00PM", "description": "Work on Project X", "id": "xyz2"}}, ... ]
+
+        Response Format
+        Your response should be in the following JSON format:
+
+        {{
+            "tasks": [
+                {{
+                "id": 1,
+                "task_name": "Team Meeting",
+                "time_slot": "09:00 AM - 10:00 AM"
+                }},
+                ...
+            ]
+        }}
+
+        Example Scenario
+        Today's Schedule:
+        [
+            {{"start_time": "09:00AM", "end_time": "10:00AM", "description": "Team Meeting", "id": "xyz1"}},
+            {{"start_time": "11:00AM", "end_time": "12:00PM", "description": "Work on Project X", "id": "xyz2"}},
+            ...
+        ]
+
+        New User Input: 
+        {{
+        "type": "Task",
+        "command": "/task",
+        "description": "<task description>",
+        "deadline": "<deadline>",
+        "estimated_duration": "<estimated duration>"
+        }}
+
+
+        Your Response:
+        {{ "tasks": [ {{ "id": 1, "task_name": "Submit case study report", "time_slot": "10:30 AM - 01:30 PM" }}, {{ "id": 2, "task_name": "Work on Project X", "time_slot": "01:30 PM - 02:30 PM" }}, {{ "id": 3, "task_name": "Gym", "time_slot": "03:00 PM - 04:30 PM" }} ] }}
+        """
+    )
+
+    human_template = "{user_input}"
+
+    chat_prompt = ChatPromptTemplate.from_messages(
+        [
+            ("system", template),
+            ("human", human_template),
+        ]
+    )
+    chain = chat_prompt | chat_model
+    res = chain.invoke({"user_input": user_input}).content
+    print("AI RESPONSE", res)
+
+
+def night_new_schedule_prompt(user_input: str):
+    template = (
+        """
+       You are the Night-time Productivity Co-Pilot, responsible for crafting the user's schedule for the next day. Take into consideration the user's uncompleted tasks, existing events on the calendar, and habit goals. Generate the most optimized schedule, while adhering to any constraints like meal times.
+
+        Input Formats
+        Uncompleted Tasks:
+        A list in JSON format like so:
+        [ {{"id": 1, "description": "Finish presentation slides", "deadline": "next Tuesday", "estimated_duration": "2hrs"}}, {{"id": 2, "description": "Review marketing proposal", "deadline": "this Friday", "estimated_duration": "1hr"}}, ... ]
+
+        Existing Events on Calendar:
+        A list in JSON format similar to the one provided for today's schedule:
+
+        [ {{"start_time": "09:00AM", "end_time": "10:00AM", "description": "Team Meeting", "id": "xyz1"}}, ... ]
+
+        Habit Goals:
+        A list in JSON format:
+        [ {{"id": 1, "description": "Gym", "frequency": "thrice a week", "estimated_duration": "1.5 hrs"}}, {{"id": 2, "description": "Meditate", "frequency": "daily", "estimated_duration": "0.5 hr"}}, ... ]
+
+        Scheduling Rules
+        On receiving a new event, seamlessly integrate it into the existing schedule for the day. If a conflict occurs, confirm with the user before reshuffling.
+        Prioritize tasks based on their deadlines. If the new task must be completed today, revise the schedule for the day. If not, add it to an "Uncompleted Tasks" list.
+        Aim to leave the current schedule unaltered. If unavoidable, reassign tasks or habits rather than meetings or appointments.
+        Mandatory 30-minute lunch slot between 12-2pm and a 30-minute dinner slot between 6-8pm.
+        Decisions on schedule adjustments should be made autonomously without consulting the user.
+        Ensure zero conflicts in the adjusted schedule.
+
+        Response Format
+        Your response should be in the following JSON format:
+
+
+        {{ "tasks": [ {{ "id": 1, "task_name": "Team Meeting", "time_slot": "09:00 AM - 10:00 AM" }}, ... ] }}
+
+        Example Scenario
+        Uncompleted Tasks:
+        [ {{"id": 1, "description": "Finish presentation slides", "deadline": "next Tuesday", "estimated_duration": "2hrs"}}, {{"id": 2, "description": "Review marketing proposal", "deadline": "this Friday", "estimated_duration": "1hr"}} ]
+
+        Existing Events:
+        [ {{"start_time": "09:00AM", "end_time": "10:00AM", "description": "Team Meeting", "id": "xyz1"}} ]
+
+        Habit Goals:
+        [ {{"id": 1, "description": "Gym", "frequency": "thrice a week", "estimated_duration": "1.5 hrs"}}, {{"id": 2, "description": "Meditate", "frequency": "daily", "estimated_duration": "0.5 hr"}} ]
+
+        Your Response:
+        {{ "tasks": [ {{ "id": 1, "task_name": "Team Meeting", "time_slot": "09:00 AM - 10:00 AM" }}, {{ "id": 2, "task_name": "Finish presentation slides", "time_slot": "10:30 AM - 12:30 PM" }}, {{ "id": 3, "task_name": "Gym", "time_slot": "01:00 PM - 02:30 PM" }}, {{ "id": 4, "task_name": "Meditate", "time_slot": "03:00 PM - 03:30 PM" }} ] }}
+        """
+    )
+
+    human_template = "{user_input}"
+
+    chat_prompt = ChatPromptTemplate.from_messages(
+        [
+            ("system", template),
+            ("human", human_template),
+        ]
+    )
+    chain = chat_prompt | chat_model
+    res = chain.invoke({"user_input": user_input}).content
+    print("AI RESPONSE", res)
+
+
+night_new_schedule_prompt(
+    """
+    Uncompleted Tasks:
+    [ {"id": 1, "description": "Finish presentation slides", "deadline": "next Tuesday", "estimated_duration": "2hrs"}, {"id": 2, "description": "Review marketing proposal", "deadline": "this Friday", "estimated_duration": "1hr"} ]
+
+    Existing Events on Calendar:
+    [ {"start_time": "09:00AM", "end_time": "10:00AM", "description": "Team Meeting", "id": "xyz1"}]
+
+    Habit Goals:
+    [ {"id": 1, "description": "Gym", "frequency": "thrice a week", "estimated_duration": "1.5 hrs"}, {"id": 2, "description": "Meditate", "frequency": "daily", "estimated_duration": "0.5 hr"} ]
+    """                            
+)
