@@ -337,5 +337,5 @@ async def reply(todo_id: int, message: str):
 
 
 @app.post("/reply")
-async def add_new_task(message: str):
-    return flow.add_new_task_flow(message)
+async def add_new_task(message: str, email: str):
+    return flow.add_new_task_flow(message, email)
