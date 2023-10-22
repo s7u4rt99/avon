@@ -178,3 +178,62 @@ def plan_tasks(user_id: int):
 
     return tasks
 
+
+def storing_new_input_prompt(user_input: str):
+    template = (
+        """
+        You're the productivity copilot, tasked with taking note of the user's tasks/events/habits and organizing the user's day in a JSON format.
+
+        You have already come up with the user's schedule for today the previous night. However, the user just sent a new input.
+
+        Sort new inputs as "Event", "Task", or "Habit".
+
+        For New Events: Return a JSON object with the following structure:
+        
+        {{
+        "type": "Event",
+        "command": "/event",
+        "description": "<event description>",
+        "start_time": "<start time>",
+        "end_time": "<end time>"
+        }}
+
+        For New Tasks: Return a JSON object with the following structure:
+
+        {{
+        "type": "Task",
+        "command": "/task",
+        "description": "<task description>",
+        "deadline": "<deadline>",
+        "estimated_duration": "<estimated duration>"
+        }}
+
+        For New Habits: Return a JSON object with the following structure:
+
+        {{
+        "type": "Habit",
+        "command": "/habit",
+        "description": "<habit description>",
+        "frequency": "<frequency>",
+        "estimated_duration": "<estimated duration>"
+        }}
+
+        If the user didn't provide any of the required info, represent it with "none".
+        """
+    )
+
+    human_template = "{user_input}"
+
+    chat_prompt = ChatPromptTemplate.from_messages(
+        [
+            ("system", template),
+            ("human", human_template),
+        ]
+    )
+    chain = chat_prompt | chat_model
+    res = chain.invoke({"user_input": user_input}).content
+    print("AI RESPONSE", res)
+
+
+storing_new_input_prompt("i want to go to the gym today for 1 hour")
+
