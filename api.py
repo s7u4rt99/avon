@@ -10,6 +10,7 @@ import logging
 import db
 import ai
 import json
+import flow
 from starlette.middleware.sessions import SessionMiddleware
 from constants import BASE_URL, GOOGLE_SCOPES
 import FirebaseService
@@ -332,9 +333,9 @@ async def send_notification(user_id: int, token: str, message: str):
 
 @app.patch("/reply/{todo_id}")
 async def reply(todo_id: int, message: str):
-    return db.reply_flow(todo_id, message)
+    return flow.reply_flow(todo_id, message)
 
 
 @app.post("/reply")
 async def add_new_task(message: str):
-    return db.add_new_task_flow(message)
+    return flow.add_new_task_flow(message)

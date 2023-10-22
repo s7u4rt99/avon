@@ -26,5 +26,5 @@ def schedule_message_job(user_id: int, message: str, time: datetime):
     response = client.create_job(parent=parent, job=job)
     print(f'Job created: {response.name}')
 
-# schedule_message_job(1, 
-#                      "ion_REM_sleeion_REM_sleeion_REM_sleeion_REM_sleeion_REM_sleeion_REM_sleeion_REM_sleeion_REM_sleeion_REM_sleeion_REM_sleeion_REM_sleeion_REM_sleeion_REM_sleeion_REM_sleeion_REM_sleeion_REM_sleeion_REM_sleeion_REM_sleeion_REM_sleeion_REM_sleeion_REM_sleeion_REM_sleeion_REM_sleeion_REM_sleeion_REM_sleeion_REM_slee", datetime.now() + timedelta(minutes=1))
+
+schedule_message_job(17, 'test', datetime.now() + timedelta(minutes=1))
