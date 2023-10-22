@@ -1,4 +1,4 @@
-from typing import TypedDict, Union
+from typing import TypedDict, Union, Optional
 from firebase import firebase
 from dotenv import load_dotenv
 from datetime import datetime
@@ -35,13 +35,14 @@ def get_token(user_id):
     result = firebase_app.get(f'/userTokens/{user_id}', 'token')
     return result or {}
 
-def write_chat_message(user_email: str, message: str):
+def write_chat_message(user_email: str, message: str, callback_str: Optional[str]):
     id = str(uuid.uuid4())
     message: FirebaseMessage = {
         "id": id,
         "text": message,
         "isSentByBot": True,
         "sentAt": datetime.now(tz=pytz.timezone("America/New_York")).isoformat(),
+        "callback": callback_str
     }
     result = firebase_app.post(f"/chats/{user_email}", message)
     return result is not None

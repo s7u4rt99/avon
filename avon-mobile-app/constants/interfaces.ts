@@ -5,6 +5,7 @@ export interface FirebaseChatMessage {
   text: string;
   sentAt: string; // ISO 8601
   id: string | number;
+  callback?: string;
 }
 
 export interface Message extends IMessage {
