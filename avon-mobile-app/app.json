@@ -24,7 +24,8 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.vishnu.sundaresan.avonmobileapp"
+      "package": "com.avon.mobile.app",
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "bundler": "metro",
@@ -42,7 +43,7 @@
         "origin": false
       },
       "eas": {
-        "projectId": "dc5de3d6-f2f2-4071-a862-5bd9d5d16e9b"
+        "projectId": "24a7aa58-22cd-4e6a-8291-6f351df7c1a4"
       }
     }
   }
