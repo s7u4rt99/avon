@@ -3,12 +3,9 @@ import { MonoText } from "../components/StyledText";
 import TypeWriter from "react-native-typewriter";
 import StyledButton from "../components/StyledButton";
 import { Link } from "expo-router";
-
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState } from "react";
 import {
-  Text,
   View,
-  Button,
   Platform,
   ImageBackground,
   StyleSheet,
@@ -75,7 +72,7 @@ async function registerForPushNotificationsAsync() {
     token = await Notifications.getExpoPushTokenAsync({
       projectId: Constants.expoConfig!.extra!.eas!.projectId!,
     });
-    console.log(token);
+    console.log("EXPO TOKEN NEEDED", token);
   } else {
     alert("Must use physical device for Push Notifications");
   }
@@ -87,7 +84,7 @@ const landing = require("../assets/images/landing.png");
 
 function TypewriterComponent({ children }: { children?: React.ReactNode }) {
   const [direction, setDirection] = useState<1 | -1>(1);
-  const linesToShow = ["Hi,\nI'm Avon!", "Your personal assistant"];
+  const linesToShow = ["Hi,\nI'm Avon!", "Your very own personal assistant"];
   const [lineIdxToShow, setLineIdxToShow] = useState<number>(0);
   return (
     <View>
@@ -113,57 +110,62 @@ function TypewriterComponent({ children }: { children?: React.ReactNode }) {
 }
 
 export default function LandingScreen() {
-  const [expoPushToken, setExpoPushToken] = useState<
-    Notifications.ExpoPushToken | undefined
-  >(undefined);
-  const [notification, setNotification] = useState<
-    Notifications.Notification | undefined
-  >(undefined);
-  const notificationListener = useRef<Notifications.Subscription>();
-  const responseListener = useRef<Notifications.Subscription>();
+  // const [expoPushToken, setExpoPushToken] = useState<
+  //   Notifications.ExpoPushToken | undefined
+  // >(undefined);
+  // const [notification, setNotification] = useState<
+  //   Notifications.Notification | undefined
+  // >(undefined);
+  // const notificationListener = useRef<Notifications.Subscription>();
+  // const responseListener = useRef<Notifications.Subscription>();
 
-  useEffect(() => {
-    async function asyncStuff() {
-      const token = await registerForPushNotificationsAsync();
-      if (token) {
-        setExpoPushToken(token);
-      }
+  // useEffect(() => {
+  //   async function asyncStuff() {
+  //     const token = await registerForPushNotificationsAsync();
+  //     if (token) {
+  //       setExpoPushToken(token);
+  //     }
 
-      notificationListener.current =
-        Notifications.addNotificationReceivedListener((notification) => {
-          setNotification(notification);
-        });
+  //     notificationListener.current =
+  //       Notifications.addNotificationReceivedListener((notification) => {
+  //         setNotification(notification);
+  //       });
 
-      responseListener.current =
-        Notifications.addNotificationResponseReceivedListener((response) => {
-          console.log(response);
-        });
-    }
-    asyncStuff();
+  //     responseListener.current =
+  //       Notifications.addNotificationResponseReceivedListener((response) => {
+  //         console.log(response);
+  //       });
+  //   }
+  //   asyncStuff();
 
-    return () => {
-      if (notificationListener.current) {
-        Notifications.removeNotificationSubscription(
-          notificationListener.current
-        );
-      }
-      if (responseListener.current) {
-        Notifications.removeNotificationSubscription(responseListener.current);
-      }
-    };
-  }, []);
+  //   return () => {
+  //     if (notificationListener.current) {
+  //       Notifications.removeNotificationSubscription(
+  //         notificationListener.current
+  //       );
+  //     }
+  //     if (responseListener.current) {
+  //       Notifications.removeNotificationSubscription(responseListener.current);
+  //     }
+  //   };
+  // }, []);
 
   return (
     <View style={styles.container}>
       <ImageBackground resizeMode="cover" source={landing} style={styles.bg}>
-        <View style={{ flex: 1, minWidth: "90%", paddingTop: "50%" }}>
+        <View style={{ flex: 1, minWidth: "100%", paddingTop: "50%" }}>
           <TypewriterComponent />
         </View>
         {/* <Text>Your expo push token: {String(expoPushToken)}</Text>
-        <View style={{ alignItems: 'center', justifyContent: 'center' }}>
-          <Text>Title: {notification && notification.request.content.title} </Text>
+        <View style={{ alignItems: "center", justifyContent: "center" }}>
+          <Text>
+            Title: {notification && notification.request.content.title}{" "}
+          </Text>
           <Text>Body: {notification && notification.request.content.body}</Text>
-          <Text>Data: {notification && JSON.stringify(notification.request.content.data)}</Text>
+          <Text>
+            Data:{" "}
+            {notification && JSON.stringify(notification.request.content.data)}
+          </Text>
         </View>
         <Button
           title="Press to Send Notification"
@@ -200,7 +202,6 @@ const styles = StyleSheet.create({
   },
   bg: {
     flex: 1,
-    // justifyContent: "center",
   },
   title: {
     fontSize: 60,

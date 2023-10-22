@@ -12,7 +12,7 @@ class Command(str, Enum):
 
 
 BASE_URL = (
-    "https://tele-bot-server.onrender.com:10000"
+    "https://avon-seven.vercel.app"
     if os.getenv("ENVIRONMENT") != "dev"
     else "http://127.0.0.1:8000"
 )

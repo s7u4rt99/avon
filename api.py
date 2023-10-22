@@ -9,9 +9,6 @@ import logging
 import db
 import ai
 
-from typing import List, TypedDict, Union
-from dotenv import load_dotenv
-from supabase.client import create_client
 from terra.base_client import Terra
 import json
 
@@ -120,6 +117,37 @@ async def mark_task_as_added(task_id: int):
 def plan_tasks(user_id: int):
     return ai.plan_tasks(user_id)
 
+@app.get("/get_google_oauth_url")
+async def get_google_oauth_url():
+    flow = google_auth_oauthlib.flow.Flow.from_client_config(
+        client_config={
+            "web": {
+                "client_id": os.environ.get("GOOGLE_CLIENT_ID"),
+                "client_secret": os.environ.get("GOOGLE_CLIENT_SECRET"),
+                "redirect_uris": ["http://127.0.0.1:8000/google_oauth_callback"],
+                "javascript_origins": ["http://localhost:8000"],
+                "project_id":"avon-402721",
+                "auth_uri":"https://accounts.google.com/o/oauth2/auth",
+                "token_uri":"https://oauth2.googleapis.com/token",
+                "auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs",
+            }
+        },
+        scopes=GOOGLE_SCOPES,
+    )
+    flow.redirect_uri = BASE_URL + "/google_oauth_callback"
+
+    # Generate URL for request to Google's OAuth 2.0 server.
+    # Use kwargs to set optional request parameters.
+    authorization_url, state = flow.authorization_url(
+        # Enable offline access so that you can refresh an access token without
+        # re-prompting the user for permission. Recommended for web server apps.
+        access_type="offline",
+        # Enable incremental authorization. Recommended as a best practice.
+        include_granted_scopes="true",
+        state=None,
+    )
+
+    return authorization_url
 
 @app.get("/google_oauth_callback")
 async def google_oauth_callback(request: Request, response: Response):
@@ -137,13 +165,13 @@ async def google_oauth_callback(request: Request, response: Response):
         client_config={
             "web": {
                 "client_id": os.environ.get("GOOGLE_CLIENT_ID"),
-                "project_id": "nova-401105",
-                "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-                "token_uri": "https://oauth2.googleapis.com/token",
-                "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
                 "client_secret": os.environ.get("GOOGLE_CLIENT_SECRET"),
                 "redirect_uris": ["http://127.0.0.1:8000/google_oauth_callback"],
                 "javascript_origins": ["http://localhost:8000"],
+                "project_id":"avon-402721",
+                "auth_uri":"https://accounts.google.com/o/oauth2/auth",
+                "token_uri":"https://oauth2.googleapis.com/token",
+                "auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs",
             }
         },
         scopes=GOOGLE_SCOPES,
