@@ -17,6 +17,7 @@ import * as WebBrowser from "expo-web-browser";
 import TypeWriter from "react-native-typewriter";
 import axios from "axios";
 import { BASE_URL } from "../constants/config";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 const landing = require("../assets/images/landing.png");
 
 export default function LoginScreen() {
@@ -26,6 +27,20 @@ export default function LoginScreen() {
   const [showAll, setShowAll] = useState(false);
   const [isGoogleConnected, setIsGoogleConnected] = useState<boolean>(false);
 
+  useEffect(() => {
+    async function asyncStuff() {
+      const emailMaybe = await AsyncStorage.getItem("email");
+      const email = emailMaybe || "";
+      setEmail(email);
+    }
+    asyncStuff();
+  }, []);
+
+  useEffect(() => {
+    if (email) {
+      checkUserConnectedGoogle();
+    }
+  }, [email]);
   async function connectToGoogle(e: NativeSyntheticEvent<NativeTouchEvent>) {
     // Prevent the default behavior of linking to the default browser on native.
     e.preventDefault();
@@ -47,27 +62,22 @@ export default function LoginScreen() {
     }
   }
 
-  const checkUserConnectedGoogle = async () => {
+  async function checkUserConnectedGoogle() {
     try {
-      const emailResponse = await axios.get<string>(
+      const emailResponse = await axios.get<{ email: string }>(
         BASE_URL + "/users/email/" + email.toLowerCase()
       );
       if (emailResponse.status === 200 && emailResponse.data) {
+        const email = emailResponse.data.email;
+        await AsyncStorage.setItem("email", email);
         setIsGoogleConnected(true);
         router.push("/main");
       }
     } catch (e) {
-      if (e instanceof Error) {
-        console.warn(e.name, e.message);
-      }
+      console.log(e);
     }
-  };
+  }
 
-  useEffect(() => {
-    if (email) {
-      checkUserConnectedGoogle();
-    }
-  }, []);
   return (
     <View style={styles.container}>
       <ImageBackground resizeMode="cover" source={landing} style={styles.bg}>
@@ -109,7 +119,10 @@ export default function LoginScreen() {
                 placeholder="Enter your email"
               />
               <StyledButton
-                style={styles.actionButton}
+                style={[
+                  styles.actionButton,
+                  { backgroundColor: !email ? "#4285F4" : undefined },
+                ]}
                 disabled={!email}
                 onPress={connectToGoogle}
               >
@@ -118,14 +131,21 @@ export default function LoginScreen() {
                 </MonoText>
               </StyledButton>
               <StyledButton
-                style={styles.actionButton}
+                style={[
+                  styles.actionButton,
+                  { backgroundColor: !email ? "#4285F4" : undefined },
+                ]}
                 onPress={checkUserConnectedGoogle}
+                disabled={!email}
               >
                 <MonoText>Refresh</MonoText>
               </StyledButton>
               <StyledButton
                 onPress={() => router.canGoBack() && router.back()}
-                style={styles.actionButton}
+                style={[
+                  styles.actionButton,
+                  { backgroundColor: !email ? "#4285F4" : undefined },
+                ]}
               >
                 <MonoText>Back</MonoText>
               </StyledButton>

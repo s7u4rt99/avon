@@ -16,42 +16,68 @@ import {
 } from "react-native-gifted-chat";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import * as Haptics from "expo-haptics";
-
-interface Message extends IMessage {
-  hasBeenTypedOut: boolean;
-}
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getChatMessages, addChatMessages } from "../firebase/realtime";
+import {
+  FirebaseChatMessage,
+  Message,
+  MessageSender,
+} from "../constants/interfaces";
 
 export default function MainScreen() {
   const [messages, setMessages] = useState<Array<Message>>([]);
+  const [email, setEmail] = useState<string>("");
   const colorScheme = useColorScheme();
   useEffect(() => {
-    setMessages([
-      {
-        _id: 2,
-        text: "Hello developer back",
-        createdAt: new Date(),
-        user: {
-          _id: 1,
-          name: "React Native",
-          avatar: "https://placeimg.com/140/140/any",
-        },
-        hasBeenTypedOut: false,
-      },
-      {
-        _id: 1,
-        text: "Hello developer!",
-        createdAt: new Date(),
-        user: {
-          _id: 2,
-          name: "React Native",
-          avatar: "https://placeimg.com/140/140/any",
-        },
-        hasBeenTypedOut: false,
-      },
-    ]);
+    let messageUnsubscribe: () => void | undefined;
+    async function asyncStuff() {
+      try {
+        const emailMaybe = await AsyncStorage.getItem("email");
+        const email = emailMaybe || "";
+        setEmail(email);
+        messageUnsubscribe = await getChatMessages(email, (snapshot) => {
+          const firebaseSnapshot: { [k: string]: FirebaseChatMessage } =
+            snapshot.val();
+          if (!firebaseSnapshot) {
+            return;
+          }
+          const firebaseMessages = Object.entries(firebaseSnapshot)
+            .filter(([k, v]) => !!v && !!k)
+            .map(([id, m]) => ({
+              _id: id,
+              text: m.text,
+              createdAt: new Date(m.sentAt),
+              user: {
+                _id: m.isSentByBot ? MessageSender.Bot : MessageSender.Sender,
+              },
+              hasBeenTypedOut: true,
+            }));
+          setMessages(firebaseMessages);
+        });
+      } catch (e) {
+        alert(e);
+        console.log("something went wrong when");
+      }
+    }
+    asyncStuff();
+
+    return () => {
+      messageUnsubscribe && messageUnsubscribe();
+    };
   }, []);
 
-  const onSend = useCallback((messages: Array<Message> = []) => {
+  async function onSend(allNewMessages: Array<Message> = []) {
+    // const newMessages = allNewMessages
+    //   .filter((x) => !messages.includes(x))
+    //   .concat(messages.filter((x) => !allNewMessages.includes(x)));
+
+    onSendUi(allNewMessages.map((m) => ({ ...m, hasBeenTypedOut: true })));
+
+    await addChatMessages(email, allNewMessages);
+    // Add any other calls here
+  }
+
+  const onSendUi = useCallback((messages: Array<Message> = []) => {
     setMessages((previousMessages) =>
       GiftedChat.append(previousMessages, messages)
     );
@@ -65,17 +91,12 @@ export default function MainScreen() {
       ]}
     >
       <View style={styles.container}>
-        {/* <View style={styles.titleContainer}>
-          <Text style={styles.title}>avon chat</Text>
-        </View> */}
         <View style={styles.chatContainer}>
           <GiftedChat
             messages={messages}
-            onSend={(messages) =>
-              onSend(messages.map((m) => ({ ...m, hasBeenTypedOut: true })))
-            }
+            onSend={onSend}
             user={{
-              _id: 1,
+              _id: MessageSender.Sender,
             }}
             listViewProps={{
               keyboardDismissMode: "on-drag",
@@ -148,7 +169,10 @@ export default function MainScreen() {
                         }}
                         placeholder="what's up?"
                         placeholderTextColor="gray"
-                        textInputStyle={[styles.textBox, { color: colorScheme === "dark" ? "#fff" : "#000" }]}
+                        textInputStyle={[
+                          styles.textBox,
+                          { color: colorScheme === "dark" ? "#fff" : "#000" },
+                        ]}
                       />
                     );
                   }}
