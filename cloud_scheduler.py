@@ -8,7 +8,7 @@ parent = client.common_location_path('avon-402721', 'us-east4')
 def schedule_message_job(user_id: int, message: str, time: datetime):
     # convert time to cron expression
     cron_time = f'{time.minute} {time.hour} {time.day} {time.month} *'
-    uri = f'https://avon-git-cronjobs-s7u4rt99.vercel.app/message/{user_id}?message={message}'
+    uri = f'https://avon-seven.vercel.app/message/{user_id}?message = {message}'
 
     # Define the job payload, including the job name, schedule, target HTTP endpoint, and other details
     job = {
@@ -25,6 +25,3 @@ def schedule_message_job(user_id: int, message: str, time: datetime):
     # Create the job
     response = client.create_job(parent=parent, job=job)
     print(f'Job created: {response.name}')
-
-
-schedule_message_job(5, 'hello', datetime.now() + timedelta(minutes=1))
