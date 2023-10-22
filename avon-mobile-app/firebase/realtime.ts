@@ -7,8 +7,11 @@ import {
   onValue,
   DataSnapshot,
 } from "firebase/database";
-import { FirebaseChatMessage, Message, MessageSender } from "../constants/interfaces";
-import { uuid } from 'uuidv4';
+import {
+  FirebaseChatMessage,
+  Message,
+  MessageSender,
+} from "../constants/interfaces";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -25,14 +28,17 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-export async function addChatMessage(email: string, message: string) {
+export async function addChatMessage(email: string, message: Message) {
   const chatMessageListRef = ref(db, "chats/" + email);
   const newMessageRef = await push(chatMessageListRef);
-  set(newMessageRef, {
-    isSentByBot: email !== "avon-bot",
-    text: message,
-    sentAt: new Date().toISOString(),
-    id: uuid(),
+  await set(newMessageRef, {
+    isSentByBot: message.user._id !== MessageSender.Sender,
+    text: message.text,
+    sentAt:
+      typeof message.createdAt === "number"
+        ? new Date(message.createdAt).toISOString()
+        : message.createdAt.toISOString(),
+    id: newMessageRef.key,
   } as FirebaseChatMessage);
 }
 
@@ -41,18 +47,26 @@ function emailToKey(email: string) {
   return email.replace(/\./g, "_");
 }
 
-export async function setChatMessages(uncleanEmail: string, messages: Message[]) {
+export async function addChatMessages(
+  uncleanEmail: string,
+  messages: Message[]
+) {
   const email = emailToKey(uncleanEmail);
-  const chatMessageListRef = ref(db, "chats/" + email);
-  set(
-    chatMessageListRef,
-    messages.map((message) => ({
-      isSentByBot: message.user._id !== MessageSender.Sender,
-      text: message.text,
-      sentAt: message.createdAt,
-      id: message._id,
-    }))
+
+  const results = await Promise.allSettled(
+    messages.map((m) => addChatMessage(email, m))
   );
+
+  const rejected = results.filter((r) => r.status === "rejected");
+  if (rejected.length > 0) {
+    console.error("Failed to add chat messages: ", rejected);
+  }
+  const fulfilled = results.filter((r) => r.status === "fulfilled");
+  if (fulfilled.length > 0) {
+    console.log("Added chat messages: ", fulfilled);
+  }
+
+  return fulfilled.length > 0 && rejected.length === 0;
 }
 
 export async function getChatMessages(

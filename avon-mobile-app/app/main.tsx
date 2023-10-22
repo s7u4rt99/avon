@@ -17,7 +17,7 @@ import {
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import * as Haptics from "expo-haptics";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { getChatMessages, setChatMessages } from "../firebase/realtime";
+import { getChatMessages, addChatMessages } from "../firebase/realtime";
 import {
   FirebaseChatMessage,
   Message,
@@ -29,16 +29,21 @@ export default function MainScreen() {
   const [email, setEmail] = useState<string>("");
   const colorScheme = useColorScheme();
   useEffect(() => {
-    let messageUnsubscribe: () => void;
+    let messageUnsubscribe: () => void | undefined;
     async function asyncStuff() {
-      const email = await AsyncStorage.getItem("email");
-      setEmail(email || "");
       try {
-        messageUnsubscribe = await getChatMessages(email || "", (snapshot) => {
+        const emailMaybe = await AsyncStorage.getItem("email");
+        const email = emailMaybe || "";
+        setEmail(email);
+        messageUnsubscribe = await getChatMessages(email, (snapshot) => {
           const firebaseMessages: Array<FirebaseChatMessage> = snapshot.val();
+          if (!firebaseMessages || !Array.isArray(firebaseMessages)) {
+            console.log("firebaseMessages is not an array");
+            return;
+          }
           setMessages(
             firebaseMessages
-              .filter((m) => !!m && !!m.text && !!m.sentAt && !!m.sentAt)
+              .filter((m) => !!m && !!m.text && !!m.sentAt && !!m.id && !!m.isSentByBot)
               .map((m) => ({
                 _id: m.id,
                 text: m.text,
@@ -46,12 +51,13 @@ export default function MainScreen() {
                 user: {
                   _id: m.isSentByBot ? MessageSender.Bot : MessageSender.Sender,
                 },
-                hasBeenTypedOut: !m.isSentByBot,
+                hasBeenTypedOut: true,
               }))
           );
         });
       } catch (e) {
-        console.error(e);
+        alert(e);
+        console.log("something went wrong when");
       }
     }
     asyncStuff();
@@ -66,9 +72,9 @@ export default function MainScreen() {
     //   .filter((x) => !messages.includes(x))
     //   .concat(messages.filter((x) => !allNewMessages.includes(x)));
 
-    // onSendUi(allNewMessages.map((m) => ({ ...m, hasBeenTypedOut: true })));
+    onSendUi(allNewMessages.map((m) => ({ ...m, hasBeenTypedOut: true })));
 
-    await setChatMessages(email, allNewMessages);
+    await addChatMessages(email, allNewMessages);
     // Add any other calls here
   }
 

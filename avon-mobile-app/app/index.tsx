@@ -2,17 +2,13 @@ import { StatusBar } from "expo-status-bar";
 import { MonoText } from "../components/StyledText";
 import TypeWriter from "react-native-typewriter";
 import StyledButton from "../components/StyledButton";
-import { Link } from "expo-router";
-import React, { useState } from "react";
-import {
-  View,
-  Platform,
-  ImageBackground,
-  StyleSheet,
-} from "react-native";
+import { Link, useRouter } from "expo-router";
+import React, { useEffect, useState } from "react";
+import { View, Platform, ImageBackground, StyleSheet } from "react-native";
 import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
 import Constants from "expo-constants";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // Notifications.setNotificationHandler({
 //   handleNotification: async () => ({
@@ -149,6 +145,17 @@ export default function LandingScreen() {
   //     }
   //   };
   // }, []);
+
+  const router = useRouter();
+  useEffect(() => {
+    async function asyncStuff() {
+      const email = await AsyncStorage.getItem("email");
+      if (email) {
+        router.push("/main");
+      }
+    }
+    asyncStuff();
+  }, []);
 
   return (
     <View style={styles.container}>

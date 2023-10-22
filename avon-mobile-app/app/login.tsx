@@ -27,6 +27,20 @@ export default function LoginScreen() {
   const [showAll, setShowAll] = useState(false);
   const [isGoogleConnected, setIsGoogleConnected] = useState<boolean>(false);
 
+  useEffect(() => {
+    async function asyncStuff() {
+      const emailMaybe = await AsyncStorage.getItem("email");
+      const email = emailMaybe || "";
+      setEmail(email);
+    }
+    asyncStuff();
+  }, []);
+  
+  useEffect(() => {
+    if (email) {
+      checkUserConnectedGoogle();
+    }
+  }, [email]);
   async function connectToGoogle(e: NativeSyntheticEvent<NativeTouchEvent>) {
     // Prevent the default behavior of linking to the default browser on native.
     e.preventDefault();
@@ -48,7 +62,7 @@ export default function LoginScreen() {
     }
   }
 
-  const checkUserConnectedGoogle = async () => {
+  async function checkUserConnectedGoogle () {
     try {
       const emailResponse = await axios.get<{ email: string; }>(
         BASE_URL + "/users/email/" + email.toLowerCase()
@@ -60,17 +74,10 @@ export default function LoginScreen() {
         router.push("/main");
       }
     } catch (e) {
-      if (e instanceof Error) {
-        console.warn(e.name, e.message);
-      }
+      console.log(e);
     }
   };
 
-  useEffect(() => {
-    if (email) {
-      checkUserConnectedGoogle();
-    }
-  }, []);
   return (
     <View style={styles.container}>
       <ImageBackground resizeMode="cover" source={landing} style={styles.bg}>
@@ -88,9 +95,9 @@ export default function LoginScreen() {
                 typing={1}
                 maxDelay={10}
                 onTypingEnd={() => {
-                  setTimeout(() => {
+                  // setTimeout(() => {
                     setShowAll(true);
-                  }, 200);
+                  // }, 200);
                 }}
               >
                 We'll need you to connect the following to get you started
