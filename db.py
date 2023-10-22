@@ -1,4 +1,5 @@
 from datetime import datetime
+from json import loads
 import os
 import pytz
 from FirebaseService import write_chat_message
@@ -240,14 +241,12 @@ def update_state(todo):
                 message = "When does the event start?"
                 write_chat_message(get_user(todo["user_id"])[
                                    "email"], message, f"/reply/{todo.id}")
-
                 return
             elif todo.event_end == None:
                 edit_task(task_id=todo.id, state="missing_event_end")
                 message = "When does the event end?"
                 write_chat_message(get_user(todo["user_id"])[
                                    "email"], message, f"/reply/{todo.id}")
-
                 return
 
         elif todo.type == "habits":
@@ -256,7 +255,6 @@ def update_state(todo):
                 message = f"How long do you estimate it takes to do {todo.name}?"
                 write_chat_message(get_user(todo["user_id"])[
                                    "email"], message, f"/reply/{todo.id}")
-
                 return
             elif todo.frequency == None:
                 edit_task(task_id=todo.id, state="missing_frequency")
@@ -332,6 +330,8 @@ def update_state(todo):
         message = adjusting_existing_schedule_prompt(pre_message)
         write_chat_message(get_user(todo["user_id"])[
             "email"], message, f"/reply/{todo.id}")
+        resParsed: dict = loads(message)
+        edit_task(task_id=todo.id, adjusted_start=resParsed["start_time"], adjusted_end=resParsed["end_time"])
 
 
 def add_new_task_flow(message: str):
