@@ -54,6 +54,7 @@ async def ping():
 async def get_users():
     return db.get_users()
 
+
 @app.get("/users/{user_id}")
 async def get_user(user_id: int):
     return db.get_user(user_id)
