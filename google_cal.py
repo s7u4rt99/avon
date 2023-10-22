@@ -11,6 +11,7 @@ import json
 import pytz
 from logger_config import configure_logger
 from constants import BASE_URL, GOOGLE_SCOPES
+
 # from utils import send_on_error_message
 
 logger = configure_logger()
@@ -177,8 +178,7 @@ def get_calendar_events(
         )
         .execute()
     )
-    events: Union[List[GoogleCalendarEvent],
-                  None] = events_result.get("items", [])
+    events: Union[List[GoogleCalendarEvent], None] = events_result.get("items", [])
 
     if events is None or type(events) is not list:
         print("No upcoming events found.")
@@ -233,9 +233,9 @@ def add_calendar_event(
 
 
 async def find_next_available_time_slot(
-        refresh_token: str,
-        events: Sequence[GoogleCalendarEvent],
-        event_duration_minutes: int,
+    refresh_token: str,
+    events: Sequence[GoogleCalendarEvent],
+    event_duration_minutes: int,
 ):
     CLIENT_ID = getenv("GOOGLE_CLIENT_ID")
     CLIENT_SECRET = getenv("GOOGLE_CLIENT_SECRET")
@@ -251,22 +251,37 @@ async def find_next_available_time_slot(
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
-    service = build('calendar', 'v3', credentials=creds)
+    service = build("calendar", "v3", credentials=creds)
 
     # Get the current date and time
     current_datetime = datetime.now(tz=pytz.timezone("America/New_York"))
     current_date = current_datetime.date()
-    end_of_day = datetime.combine(current_date, datetime.time(datetime(
-        year=current_date.year, month=current_date.month, day=current_date.day, hour=23, minute=59, second=59)))
+    end_of_day = datetime.combine(
+        current_date,
+        datetime.time(
+            datetime(
+                year=current_date.year,
+                month=current_date.month,
+                day=current_date.day,
+                hour=23,
+                minute=59,
+                second=59,
+            )
+        ),
+    )
 
     # List events on the current day
-    events_result = service.events().list(
-        calendarId="primary",
-        timeMin=current_datetime.isoformat(),
-        timeMax=end_of_day.isoformat(),
-        singleEvents=True,
-    ).execute()
-    events = events_result.get('items', [])
+    events_result = (
+        service.events()
+        .list(
+            calendarId="primary",
+            timeMin=current_datetime.isoformat(),
+            timeMax=end_of_day.isoformat(),
+            singleEvents=True,
+        )
+        .execute()
+    )
+    events = events_result.get("items", [])
 
     # Loop from current time, in intervals of 15 mins, check scheduling conflict, if conflict continue, else return this time slot and don't allow event to be past 11:59pm
     time_slot = current_datetime
@@ -274,21 +289,30 @@ async def find_next_available_time_slot(
     while time_slot < end_of_day:
         # Check if there is a scheduling conflict
         def is_scheduling_conflict(
-                start_time: datetime,
-                end_time: datetime,
-                events: Sequence[GoogleCalendarEvent],
+            start_time: datetime,
+            end_time: datetime,
+            events: Sequence[GoogleCalendarEvent],
         ):
             for event in events:
-                if event.get("start") and event.get("end") and event.get("start").get("dateTime") and event.get("end").get("dateTime"):
+                if (
+                    event.get("start")
+                    and event.get("end")
+                    and event.get("start").get("dateTime")
+                    and event.get("end").get("dateTime")
+                ):
                     event_start_time = datetime.fromisoformat(
-                        event.get("start").get("dateTime"))  # type: ignore
+                        event.get("start").get("dateTime")
+                    )  # type: ignore
                     event_end_time = datetime.fromisoformat(
-                        event.get("end").get("dateTime"))  # type: ignore
+                        event.get("end").get("dateTime")
+                    )  # type: ignore
                     if start_time < event_end_time or end_time > event_start_time:
                         return True
             return False
 
-        if not is_scheduling_conflict(time_slot, time_slot + timedelta(minutes=event_duration_minutes), events):
+        if not is_scheduling_conflict(
+            time_slot, time_slot + timedelta(minutes=event_duration_minutes), events
+        ):
             return time_slot
         else:
             time_slot += timedelta(minutes=15)

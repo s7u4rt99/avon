@@ -1,4 +1,4 @@
-import React from "react";
+import React, { forwardRef } from "react";
 import { Pressable, StyleSheet, useColorScheme } from "react-native";
 import { TouchableOpacity, TouchableOpacityProps } from "react-native";
 import * as Haptics from "expo-haptics";
@@ -7,13 +7,14 @@ interface ButtonProps extends TouchableOpacityProps {
   children?: React.ReactNode;
 }
 
-export default function StyledButton(props: ButtonProps) {
+function StyledButton(props: ButtonProps, ref: React.Ref<TouchableOpacity>) {
   const colorScheme = useColorScheme();
   return (
     <Pressable>
       {(pressedProps) => (
         <TouchableOpacity
           {...props}
+          ref={ref}
           style={[
             props.style,
             styles.styledButton,
@@ -27,11 +28,11 @@ export default function StyledButton(props: ButtonProps) {
           ]}
           onPress={(e) => {
             props.onPress && props.onPress(e);
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
           }}
           onLongPress={(e) => {
             props.onLongPress && props.onLongPress(e);
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
           }}
         />
       )}
@@ -51,3 +52,5 @@ const styles = StyleSheet.create({
     textShadowColor: "#fff",
   },
 });
+
+export default forwardRef(StyledButton);
