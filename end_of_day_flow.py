@@ -1,6 +1,8 @@
 from datetime import datetime, timedelta
 from json import loads
+import platform
 from typing import List
+import webbrowser
 import pytz
 from ai import night_new_schedule_prompt
 from db import get_tasks_from_user_email, get_user_by_email
@@ -95,4 +97,15 @@ def start_night_flow(email: str):
   )
 
   schedule_obj = loads(new_schedule)
+
+  formatted_tasks = "Tasks for Today:\n----------------"
+  for task in schedule_obj["tasks"]:
+      task_line = "\n{0}. {1}\n   - Time Slot: {2}".format(task["id"], task["task_name"], task["time_slot"])
+      formatted_tasks += "\n----------------" + task_line
+  print(formatted_tasks)
+
+ 
+  if platform.system() != 'Web':
+      webbrowser.open('https://calendar.google.com/', new=2)
+
 
