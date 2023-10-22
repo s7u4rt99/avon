@@ -19,6 +19,7 @@ export default function LoginScreen() {
   useEffect(() => {
     async function init() {
       try {
+        alert(BASE_URL)
         const authUrlResponse = await axios.get<string>(
           BASE_URL + "/get_google_oauth_url"
         );
