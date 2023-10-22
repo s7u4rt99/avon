@@ -292,6 +292,7 @@ async def list_terra_users():
 async def consume_terra_webhook(request: Request):
     body = await request.body()
     body_dict = json.loads(body.decode())
+    print(body_dict)
     return {"user": body_dict.get("user", {}).get("user_id"), "type": body_dict["type"], "data": body_dict["data"]}
 
 # for testing purposes only
