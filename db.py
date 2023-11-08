@@ -22,6 +22,8 @@ def get_users():
 def get_user(user_id: int):
     return supabase.table("Users").select("*").eq("id", user_id).execute().data[0]
 
+def get_user_by_telegram_id(telegram_id: int):
+    return supabase.table("Users").select("*").eq("telegram_user_id", telegram_id).execute().data[0]
 
 def get_user_by_email(email: str):
     users = supabase.table("Users").select("*").eq("email", email).execute().data

@@ -86,6 +86,10 @@ async def get_users():
 async def get_user(user_id: int):
     return db.get_user(user_id)
 
+@app.get("/users/{telegram_user_id}")
+async def get_user_by_telegram_id(telegram_user_id: str):
+    return db.get_user_by_telegram_id(telegram_user_id)
+
 
 @app.get("/users/email/{email}")
 async def get_user_by_email(email: str):
