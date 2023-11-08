@@ -104,14 +104,15 @@ def get_tasks_from_user(user_id: int):
     )
 
 
-def add_task(user_id: int, name: str, description: str = "", recurring: bool = False):
+def add_task(user_id: int, name: str, duration: int, deadline: str, recurring: bool = False):
     return (
         supabase.table("Tasks")
         .insert(
             {
                 "user_id": user_id,
                 "name": name,
-                "description": description,
+                "duration": duration,
+                "deadline": deadline,
                 "recurring": recurring,
             }
         )

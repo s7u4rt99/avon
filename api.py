@@ -14,7 +14,7 @@ import flow
 from starlette.middleware.sessions import SessionMiddleware
 from constants import BASE_URL, GOOGLE_SCOPES
 import FirebaseService
-from typing import List, TypedDict, Union
+from typing import List, Optional, TypedDict, Union
 from dotenv import load_dotenv
 from supabase.client import create_client
 from terra.base_client import Terra
@@ -130,9 +130,8 @@ async def get_tasks_from_user(user_id: int):
 
 @app.put("/tasks")
 async def add_task(
-    user_id: int, name: str, description: str = "", recurring: bool = False
-):
-    return db.add_task(user_id, name, description, recurring)
+    user_id: int, name: str, duration: str, deadline: str):
+    return db.add_task(user_id, name, int(duration or "0"), deadline)
 
 
 @app.patch("/tasks/{task_id}")
@@ -154,89 +153,71 @@ async def mark_task_as_added(task_id: int):
 def plan_tasks(user_id: int):
     return ai.plan_tasks(user_id)
 
-
 @app.get("/get_google_oauth_url")
 async def get_google_oauth_url(request: Request):
+    """
+    Route to get Google Oauth URL
+
+    params:
+        telegram_user_id: int
+    """
     params = request.query_params
-    email = params.get("email")
+    telegram_user_id = params.get("telegram_user_id")
+    username = params.get("username")
+    if (not telegram_user_id or not telegram_user_id.isdigit()) or (not username):
+        raise Exception("Invalid telegram_user_id and/or username")
+    telegram_user_id = int(telegram_user_id)
     state_dict = {
-        "email": email,
+        "telegram_user_id": telegram_user_id,
+        "username": username,
     }
     state_dict_dumps = json.dumps(state_dict)
-    flow = google_auth_oauthlib.flow.Flow.from_client_config(
-        client_config=google_oauth_client_config,
-        state=state_dict_dumps,
-        scopes=GOOGLE_SCOPES,
-    )
-    flow.redirect_uri = BASE_URL + "/google_oauth_callback"
 
-    # Generate URL for request to Google's OAuth 2.0 server.
-    # Use kwargs to set optional request parameters.
-    authorization_url, state = flow.authorization_url(
-        # Enable offline access so that you can refresh an access token without
-        # re-prompting the user for permission. Recommended for web server apps.
-        access_type="offline",
-        # Enable incremental authorization. Recommended as a best practice.
-        include_granted_scopes="true",
-        state=state_dict_dumps,
-    )
-
-    return authorization_url
+    return get_google_login_url(state_dict_str=state_dict_dumps)
 
 
-@app.get("/google_oauth_callback")
+@app.post("/google_oauth_callback")
 async def google_oauth_callback(request: Request, response: Response):
-    state, username, email = None, None, None
+    """
+    Route to handle Google Oauth callback after user has logged in
+    """
+    state, username, telegram_user_id = None, None, None
     if "state" in request.query_params:
         state_dict_dumps = request.query_params.get("state")
         if not state_dict_dumps:
             raise Exception("state not in session")
-        try:
-            state = json.loads(state_dict_dumps)
-        except:
-            raise Exception("state not in session")
-        email = state.get("email", "")
-        username = email.split("@")[0] if email.find("@") > 0 else email
+        state_dict = json.loads(state_dict_dumps)
+        telegram_user_id = state_dict.get("telegram_user_id", "")
+        username = state_dict.get("username", "")
     else:
         raise Exception("state not in session")
     flow = google_auth_oauthlib.flow.Flow.from_client_config(
-        client_config=google_oauth_client_config,
+        client_config=get_google_oauth_client_config(),
         scopes=GOOGLE_SCOPES,
+        state=state,
     )
     flow.redirect_uri = BASE_URL + "/google_oauth_callback"
     code = request.query_params.get("code")
 
-    flow.fetch_token(
-        code=code,
-    )
-
-    logger.info("flow.credentials: " + str(flow.credentials))
+    flow.fetch_token(code=code)
 
     # Store the credentials in the session.
     credentials = flow.credentials
     request.session["credentials"] = {
         "token": credentials.token,
         "refresh_token": credentials.refresh_token,
-        # "token_uri": credentials.token_uri,
+        # 'token_uri': credentials.token_uri,
         "scopes": credentials.scopes,
     }
 
-    data = {
-        "username": username,
-        "name": username,
-        "email": email,
-        "google_refresh_token": flow.credentials.refresh_token or "",
-    }
+    # TODO - save user with refresh_token to db
+    logger.info("Done with Google Oauth!")
 
-    result = supabase.table("Users").select("*").eq("username", username).execute()
-
-    if len(result.data or []) <= 0:
-        # Add firebase user add
-      supabase.table("Users").insert(data).execute()
-    
     # Create a Response object with the 307 redirect status code
-    json_compatible_item_data = jsonable_encoder("You can close this window now")
-    return JSONResponse(content=json_compatible_item_data)
+    response = Response(status_code=307, headers={"Location": TELEGRAM_BOT_LINK})
+
+    # Send the Response object
+    return response
 
 
 TERRA_API_KEY = os.getenv("TERRA_API_KEY")
