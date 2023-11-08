@@ -104,7 +104,9 @@ def get_tasks_from_user(user_id: int):
     )
 
 
-def add_task(user_id: int, name: str, duration: int, deadline: str, recurring: bool = False):
+def add_task(user_id: int, name: str, duration: int, deadline: str):
+    
+    deadline_obj = datetime.strptime(deadline, "%m%d")
     return (
         supabase.table("Tasks")
         .insert(
@@ -112,8 +114,7 @@ def add_task(user_id: int, name: str, duration: int, deadline: str, recurring: b
                 "user_id": user_id,
                 "name": name,
                 "duration": duration,
-                "deadline": deadline,
-                "recurring": recurring,
+                "deadline": deadline_obj,
             }
         )
         .execute()
