@@ -69,7 +69,7 @@ function RootLayoutNav() {
         <Stack.Screen
           name="main"
           options={{
-            headerTitle: (_p) => <MonoText>avon chat</MonoText>,
+            headerTitle: (_p) => <MonoText>nova chat</MonoText>,
             headerTitleAlign: "center",
             headerLeft: (props) => <></>,
           }}

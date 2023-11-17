@@ -80,7 +80,7 @@ const landing = require("../assets/images/landing.png");
 
 function TypewriterComponent({ children }: { children?: React.ReactNode }) {
   const [direction, setDirection] = useState<1 | -1>(1);
-  const linesToShow = ["Hi,\nI'm Avon!", "Your very own personal assistant"];
+  const linesToShow = ["Hi,\nI'm Nova!", "Your Personal Co-pilot"];
   const [lineIdxToShow, setLineIdxToShow] = useState<number>(0);
   return (
     <View>
@@ -174,7 +174,7 @@ export default function LandingScreen() {
         >
           <TypewriterComponent />
         </View>
-        <Link href="/login" asChild>
+        <Link href="/main" asChild>
           <StyledButton
             style={{
               width: "50%",

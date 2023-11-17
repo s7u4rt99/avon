@@ -15,13 +15,13 @@ import {
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: process.env.FIREBASE_CHAT_API_KEY,
-  authDomain: "avon-402721.firebaseapp.com",
-  databaseURL: "https://avon-402721-default-rtdb.firebaseio.com",
-  projectId: "avon-402721",
-  storageBucket: "avon-402721.appspot.com",
-  messagingSenderId: "546498726861",
-  appId: "1:546498726861:web:4a59d2f673b464a00b9284",
+  apiKey: "AIzaSyDLkcxVW8jLdciiv5sQpOSqdu_9iiPX8OM",
+  authDomain: "nova-83407.firebaseapp.com",
+  databaseURL: "https://nova-83407-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "nova-83407",
+  storageBucket: "nova-83407.appspot.com",
+  messagingSenderId: "247250941452",
+  appId: "1:247250941452:web:abd54fc74cb68161ae2029"
 };
 
 // Initialize Firebase
@@ -44,7 +44,7 @@ export async function addChatMessage(email: string, message: Message) {
 
 function emailToKey(email: string) {
   // Replace all dots with underscores
-  return email.replace(/\./g, "_");
+  return "vishnu.sundaresan@gmail.com".replace(/\./g, "_");
 }
 
 export async function addChatMessages(

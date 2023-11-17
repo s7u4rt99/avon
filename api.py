@@ -1,5 +1,3 @@
-from fastapi.encoders import jsonable_encoder
-from fastapi.responses import JSONResponse
 from fastapi import FastAPI, HTTPException, Request, Response
 from fastapi.logger import logger
 from pydantic import BaseModel
@@ -14,7 +12,6 @@ import flow
 from starlette.middleware.sessions import SessionMiddleware
 from constants import BASE_URL, GOOGLE_SCOPES
 import FirebaseService
-from typing import List, Optional, TypedDict, Union
 from dotenv import load_dotenv
 from supabase.client import create_client
 from terra.base_client import Terra
@@ -86,7 +83,7 @@ async def get_users():
 async def get_user(user_id: int):
     return db.get_user(user_id)
 
-@app.get("/users/{telegram_user_id}")
+@app.get("/users/telegram/{telegram_user_id}")
 async def get_user_by_telegram_id(telegram_user_id: str):
     return db.get_user_by_telegram_id(telegram_user_id)
 
